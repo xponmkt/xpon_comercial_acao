@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XP On — Comercial em Ação</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0E1DAA;--blue-dark:#060D4D;--blue-soft:#E8EAFA;
+  --cyan:#4DA4C7;--cyan-soft:#E5F1F5;
+  --green:#0F9D58;--green-soft:#E6F4EC;--green-dark:#0A7A42;
+  --red:#D93025;--amber:#F59E0B;--amber-soft:#FEF3C7;
+  --g900:#0A0A0A;--g700:#3F3F46;--g500:#71717A;
+  --g200:#DEDEDE;--g100:#EEEEEE;--g50:#F5F5F5;
+  --bg:#F0F0F5;--surface:#FFFFFF;--r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--g900);font-size:14px;line-height:1.6;min-height:100vh}
+header{background:var(--blue-dark);height:56px;display:flex;align-items:center;padding:0 24px;gap:14px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.35)}
+.logo{font-size:18px;font-weight:700;color:#fff;flex-shrink:0}.logo span{color:var(--cyan)}
+.h-sep{color:rgba(255,255,255,.18);font-size:18px}
+.h-title{font-size:12px;color:rgba(255,255,255,.45);white-space:nowrap;flex-shrink:0}
+.main-tabs{display:flex;gap:3px;margin-left:auto}
+.main-tab{background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.55);padding:6px 16px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.main-tab:hover{background:rgba(255,255,255,.13);color:#fff}
+.main-tab.on{background:var(--cyan);color:#fff}
+.hbtn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.65);padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;margin-left:6px}
+.hbtn:hover{background:rgba(255,255,255,.16);color:#fff}
+main{padding:24px;max-width:1200px;margin:0 auto}
+.tab-sec{display:none}.tab-sec.on{display:block}
+.sec-hdr{margin-bottom:22px}
+.sec-hdr h2{font-size:21px;font-weight:700;color:var(--blue-dark);letter-spacing:-.3px}
+.sec-hdr p{font-size:13px;color:var(--g500);margin-top:4px}
+.acc-tabs{display:flex;gap:0;margin-bottom:18px;background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:4px;width:fit-content}
+.acc-tab{background:none;border:none;padding:7px 18px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--g500);transition:all .15s}
+.acc-tab:hover{color:var(--g900)}
+.acc-tab.on{color:#fff}
+.at-rodrigo.on{background:var(--blue)}.at-herik.on{background:var(--cyan)}.at-andreia.on{background:var(--green)}.at-luiz.on{background:var(--green-dark)}
+.form-panel{display:none}.form-panel.on{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:4px}
+label{font-size:11px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.8px}
+.hint{font-size:11px;color:var(--g500);font-weight:400;text-transform:none;letter-spacing:0;margin-top:-2px}
+input[type=text],input[type=number],textarea{background:var(--surface);border:1px solid var(--g200);border-radius:7px;padding:8px 12px;font-family:inherit;font-size:13px;color:var(--g900);width:100%;transition:border .15s;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(14,29,170,.07)}
+textarea{min-height:76px}
+.form-card{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.form-card-t{font-size:13px;font-weight:700;color:var(--blue-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.fc-dot{width:4px;height:16px;border-radius:2px;display:inline-block;flex-shrink:0}
+.btn{padding:8px 18px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.btn-blue{background:var(--blue);color:#fff}.btn-cyan{background:var(--cyan);color:#fff}.btn-green{background:var(--green);color:#fff}.btn-gdark{background:var(--green-dark);color:#fff}
+.btn-ghost{background:var(--g100);color:var(--g700);border:1px solid var(--g200)}.btn-ghost:hover{background:var(--g200)}
+.btn-sm{padding:5px 11px;font-size:11px}
+.btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.hl{border-radius:var(--r);padding:13px 17px;margin-bottom:14px;font-size:13px}
+.hl-b{background:var(--blue-soft);border:1px solid rgba(14,29,170,.13);color:var(--blue-dark)}
+.hl-c{background:var(--cyan-soft);border:1px solid rgba(77,164,199,.22);color:#1a5e7a}
+.hl-g{background:var(--green-soft);border:1px solid rgba(15,157,88,.2);color:#0a5c30}
+.hl-gd{background:#EFF7F2;border:1px solid rgba(10,122,66,.2);color:#0a5c30}
+.hl-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px}
+.period-row{display:flex;gap:6px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.period-lbl{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:1px}
+.period-btn{background:var(--surface);border:1px solid var(--g200);padding:4px 13px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--g500);transition:all .15s}
+.period-btn.on{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+.seg-tabs{display:flex;gap:4px;margin-bottom:18px}
+.seg-tab{background:var(--surface);border:1px solid var(--g200);padding:7px 20px;border-radius:var(--r);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--g500);transition:all .15s}
+.seg-tab.on.priv{background:var(--blue);color:#fff;border-color:var(--blue)}
+.seg-tab.on.pub{background:var(--green);color:#fff;border-color:var(--green)}
+.acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.acc-panel{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden}
+.acc-head{padding:13px 17px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.acc-head-name{font-size:14px;font-weight:700}
+.acc-head-sub{font-size:10px;opacity:.7;margin-top:1px}
+.acc-body{padding:16px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.kpi-card{background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:13px}
+.kpi-icon{font-size:16px;margin-bottom:4px}
+.kpi-num{font-size:24px;font-weight:700;letter-spacing:-1px;line-height:1}
+.kpi-lbl{font-size:10px;color:var(--g500);margin-top:2px}
+.kpi-bar-bg{height:3px;background:var(--g200);border-radius:2px;margin:5px 0 2px}
+.kpi-bar-fill{height:3px;border-radius:2px;transition:width .4s}
+.kpi-pct{font-size:10px;font-weight:700}
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.entry-field{display:flex;flex-direction:column;gap:2px}
+.entry-lbl{font-size:9px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.7px}
+.chart-wrap{background:var(--g50);border-radius:8px;padding:12px;margin-top:10px}
+.chart-t{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+#toast{position:fixed;bottom:20px;right:20px;z-index:300;padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;color:#fff;max-width:340px;box-shadow:0 4px 20px rgba(0,0,0,.25);transition:all .25s;pointer-events:none}
+#toast.ok{background:var(--green)}#toast.err{background:var(--red)}#toast.info{background:var(--blue)}#toast.hidden{opacity:0;transform:translateY(6px)}
+.moverlay{position:fixed;inset:0;background:rgba(6,13,77,.55);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.moverlay.hidden{display:none}
+.mbox{background:var(--surface);border-radius:14px;padding:28px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative}
+.mbox-wide{max-width:860px}
+.m-close{position:absolute;top:14px;right:14px;background:var(--g100);border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.m-title{font-size:18px;font-weight:700;color:var(--blue-dark);margin-bottom:4px;padding-right:32px}
+.m-sub{font-size:12px;color:var(--g500);margin-bottom:18px}
+.painel-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px}
+.painel-card{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden}
+.painel-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.painel-name{font-size:15px;font-weight:700;color:#fff}
+.painel-seg{font-size:10px;color:rgba(255,255,255,.7)}
+.painel-body{padding:16px}
+.diag-field{margin-bottom:12px}
+.diag-field-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--g500);margin-bottom:3px}
+.diag-field-val{font-size:13px;color:var(--g700);line-height:1.55;background:var(--g50);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-word}
+.diag-empty-txt{font-size:12px;color:var(--g500);font-style:italic}
+.diag-date{font-size:11px;color:var(--g500);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--g100)}
+.hist-list{margin-top:10px}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;background:var(--g50);margin-bottom:5px;gap:8px}
+.hist-item-date{font-size:11px;color:var(--g500);white-space:nowrap;flex-shrink:0}
+.hist-item-prev{font-size:12px;color:var(--g700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.hist-item-btns{display:flex;gap:4px;flex-shrink:0}
+.kpi-sum-table{width:100%;border-collapse:collapse;font-size:12px}
+.kpi-sum-table th{text-align:left;padding:8px 12px;background:var(--blue-dark);color:#fff;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.kpi-sum-table td{padding:9px 12px;border-bottom:1px solid var(--g100);color:var(--g700);vertical-align:middle}
+.kpi-sum-table tr:last-child td{border-bottom:none}
+.kpi-sum-table tr:hover td{background:var(--g50)}
+.kval{font-size:15px;font-weight:700}
+hr{border:none;border-top:1px solid var(--g200);margin:16px 0}
+.empty{text-align:center;padding:24px;color:var(--g500);font-size:13px}
+.empty-icon{font-size:26px;margin-bottom:6px}
+.loading{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g500);padding:10px 0}
+.spinner{width:14px;height:14px;border:2px solid var(--g200);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sec-sep{font-size:13px;font-weight:700;color:var(--blue-dark);margin-bottom:14px;margin-top:4px;display:flex;align-items:center;gap:8px}
+.sec-sep-bar{width:4px;height:18px;border-radius:2px;display:inline-block}
+@media print{header,.moverlay,.hbtn,#toast{display:none!important}#print-area{display:block!important}}
+#print-area{display:none}
+@media(max-width:768px){.acc-grid,.painel-grid,.form-grid{grid-template-columns:1fr}.main-tabs .main-tab{padding:5px 10px;font-size:11px}}
+</style>
+</head>
+<body>
+<div id="toast" class="hidden"></div>
+<div id="print-area"></div>
+
+<!-- Modal: Ver diagnóstico completo -->
+<div id="modal-diag" class="moverlay hidden" onclick="if(event.target===this)closeModal('modal-diag')">
+  <div class="mbox mbox-wide">
+    <button class="m-close" onclick="closeModal('modal-diag')">✕</button>
+    <div id="modal-diag-content"></div>
+  </div>
+</div>
+
+<!-- Modal: Metas -->
+<div id="modal-metas" class="moverlay hidden" onclick="if(event.target===this)closeModal('modal-metas')">
+  <div class="mbox">
+    <button class="m-close" onclick="closeModal('modal-metas')">✕</button>
+    <div class="m-title">Metas Mensais</div>
+    <div class="m-sub">Configure as metas por account. Salvas no banco e visíveis para todo o time.</div>
+    <div class="acc-tabs" style="margin-bottom:16px">
+      <button class="acc-tab at-rodrigo on" onclick="switchMetaAcc('rodrigo',this)">Rodrigo</button>
+      <button class="acc-tab at-herik"      onclick="switchMetaAcc('herik',this)">Herik</button>
+      <button class="acc-tab at-andreia"    onclick="switchMetaAcc('andreia',this)">Andreia</button>
+      <button class="acc-tab at-luiz"       onclick="switchMetaAcc('luiz',this)">Luiz</button>
+    </div>
+    <div id="mf-rodrigo">
+      <div class="form-grid">
+        <div class="form-group"><label>Leads qualificados/mês</label><input type="number" id="m-rodrigo-leads_qualificados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Contatos feitos/mês</label><input type="number" id="m-rodrigo-contatos_feitos_mes" value="60" min="0"></div>
+        <div class="form-group"><label>Reuniões/mês</label><input type="number" id="m-rodrigo-reunioes_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Propostas/mês</label><input type="number" id="m-rodrigo-propostas_mes" value="8" min="0"></div>
+        <div class="form-group"><label>Oportunidades abertas (meta)</label><input type="number" id="m-rodrigo-oportunidades_abertas_meta" value="10" min="0"></div>
+        <div class="form-group"><label>Avançaram de fase/mês</label><input type="number" id="m-rodrigo-oportunidades_avancaram_mes" value="4" min="0"></div>
+      </div>
+    </div>
+    <div id="mf-herik" style="display:none">
+      <div class="form-grid">
+        <div class="form-group"><label>Leads qualificados/mês</label><input type="number" id="m-herik-leads_qualificados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Contatos feitos/mês</label><input type="number" id="m-herik-contatos_feitos_mes" value="60" min="0"></div>
+        <div class="form-group"><label>Reuniões/mês</label><input type="number" id="m-herik-reunioes_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Propostas/mês</label><input type="number" id="m-herik-propostas_mes" value="8" min="0"></div>
+        <div class="form-group"><label>Oportunidades abertas (meta)</label><input type="number" id="m-herik-oportunidades_abertas_meta" value="10" min="0"></div>
+        <div class="form-group"><label>Avançaram de fase/mês</label><input type="number" id="m-herik-oportunidades_avancaram_mes" value="4" min="0"></div>
+      </div>
+    </div>
+    <div id="mf-andreia" style="display:none">
+      <div class="form-grid">
+        <div class="form-group"><label>Órgãos contatados/mês</label><input type="number" id="m-andreia-orgaos_contatados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Editais monitorados/mês</label><input type="number" id="m-andreia-editais_mes" value="30" min="0"></div>
+        <div class="form-group"><label>Reuniões/visitas/mês</label><input type="number" id="m-andreia-reunioes_visitas_mes" value="10" min="0"></div>
+        <div class="form-group"><label>Propostas CIGAM/mês</label><input type="number" id="m-andreia-propostas_cigam_mes" value="5" min="0"></div>
+        <div class="form-group"><label>Novos contatos/mês</label><input type="number" id="m-andreia-novos_contatos_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Participações licitação/mês</label><input type="number" id="m-andreia-participacoes_licitacao_mes" value="8" min="0"></div>
+      </div>
+    </div>
+    <div id="mf-luiz" style="display:none">
+      <div class="form-grid">
+        <div class="form-group"><label>Órgãos contatados/mês</label><input type="number" id="m-luiz-orgaos_contatados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Editais monitorados/mês</label><input type="number" id="m-luiz-editais_mes" value="30" min="0"></div>
+        <div class="form-group"><label>Reuniões/visitas/mês</label><input type="number" id="m-luiz-reunioes_visitas_mes" value="10" min="0"></div>
+        <div class="form-group"><label>Propostas CIGAM/mês</label><input type="number" id="m-luiz-propostas_cigam_mes" value="5" min="0"></div>
+        <div class="form-group"><label>Novos contatos/mês</label><input type="number" id="m-luiz-novos_contatos_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Participações licitação/mês</label><input type="number" id="m-luiz-participacoes_licitacao_mes" value="8" min="0"></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn btn-blue" onclick="saveMetas()">Salvar metas</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-metas')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">XP<span>on</span></div>
+  <span class="h-sep">|</span>
+  <span class="h-title">Comercial em Ação</span>
+  <nav class="main-tabs">
+    <button class="main-tab on" onclick="switchMain('diagnostico',this)">📋 Diagnóstico</button>
+    <button class="main-tab"    onclick="switchMain('kpis',this)">📊 KPIs</button>
+    <button class="main-tab"    onclick="switchMain('painel',this)">👁 Painel</button>
+  </nav>
+  <button class="hbtn" id="btn-metas">🎯 Metas</button>
+</header>
+
+<main>
+
+<!-- DIAGNÓSTICO -->
+<section id="tab-diagnostico" class="tab-sec on">
+  <div class="sec-hdr">
+    <h2>Diagnóstico por Account</h2>
+    <p>Preencha as informações da sua carteira. Dados salvos no banco e visíveis no Painel para toda a equipe.</p>
+  </div>
+  <div class="acc-tabs">
+    <button class="acc-tab at-rodrigo on" onclick="switchDiag('rodrigo',this)">Rodrigo</button>
+    <button class="acc-tab at-herik"      onclick="switchDiag('herik',this)">Herik</button>
+    <button class="acc-tab at-andreia"    onclick="switchDiag('andreia',this)">Andreia Naves</button>
+    <button class="acc-tab at-luiz"       onclick="switchDiag('luiz',this)">Luiz Gomes</button>
+  </div>
+
+  <div id="diag-rodrigo" class="form-panel on">
+    <div class="hl hl-b"><div class="hl-lbl" style="color:var(--blue)">Rodrigo — Setor Privado · São Paulo</div>Carteira XP Privada. Preencha com base no que você tem hoje na praça SP.</div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--blue)"></span>Carteira Atual</div>
+      <div class="form-grid">
+        <div class="form-group form-full"><label>Contas ativas na carteira</label><span class="hint">Liste as contas que estão em alguma fase ativa hoje</span><textarea id="f-rodrigo-contas_ativas" placeholder="Ex: Empresa A (negociação), Empresa B (proposta enviada)..."></textarea></div>
+        <div class="form-group form-full"><label>Contas estratégicas — top 5 com maior potencial em 90 dias</label><textarea id="f-rodrigo-contas_estrategicas" placeholder="Ex: 1. Empresa X — ticket estimado R$80k, decisão prevista para julho..."></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--cyan)"></span>Segmentos e Personas</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Segmentos com maior tração</label><input type="text" id="f-rodrigo-segmentos_tracao" placeholder="Ex: Financeiro, Saúde, Tech"></div>
+        <div class="form-group"><label>Persona decisora mais comum</label><input type="text" id="f-rodrigo-persona_decisora" placeholder="Ex: CTO, Gerente de TI, CIO"></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--red)"></span>Obstáculos e Gaps</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Principal obstáculo operacional</label><textarea id="f-rodrigo-obstaculos" placeholder="O que trava o ciclo de venda hoje?"></textarea></div>
+        <div class="form-group"><label>O que falta de material ou ferramental</label><textarea id="f-rodrigo-gaps_material" placeholder="O que o marketing poderia entregar?"></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green)"></span>Visão de Meta</div>
+      <div class="form-group"><label>Meta realista com base no que você já tem</label><span class="hint">Volume de propostas, receita esperada, nº de clientes novos...</span><textarea id="f-rodrigo-visao_meta" placeholder="Ex: Acredito que consigo fechar 3 contratos no Q3, R$240k..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-blue" onclick="saveDiag('rodrigo','privado')">Salvar diagnóstico</button>
+      <button class="btn btn-ghost" onclick="downloadPDF('rodrigo')">⬇ Baixar PDF</button>
+    </div>
+    <hr><div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Histórico</div>
+    <div id="hist-rodrigo"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+
+  <div id="diag-herik" class="form-panel">
+    <div class="hl hl-c"><div class="hl-lbl" style="color:#3A8AAF">Herik — Setor Privado · São Paulo</div>Carteira XP Privada. Identifique sobreposição ou complementaridade com Rodrigo.</div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--cyan)"></span>Carteira Atual</div>
+      <div class="form-grid">
+        <div class="form-group form-full"><label>Contas ativas na carteira</label><textarea id="f-herik-contas_ativas" placeholder="Ex: Empresa A (negociação)..."></textarea></div>
+        <div class="form-group form-full"><label>Contas estratégicas — top 5 com maior potencial em 90 dias</label><textarea id="f-herik-contas_estrategicas" placeholder="Ex: 1. Empresa X — ticket estimado R$50k..."></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--cyan)"></span>Segmentos e Personas</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Segmentos com maior tração</label><input type="text" id="f-herik-segmentos_tracao" placeholder="Ex: Indústria, Varejo"></div>
+        <div class="form-group"><label>Persona decisora mais comum</label><input type="text" id="f-herik-persona_decisora" placeholder="Ex: Gerente de TI, CTO"></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--red)"></span>Obstáculos e Gaps</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Principal obstáculo operacional</label><textarea id="f-herik-obstaculos" placeholder="O que trava hoje?"></textarea></div>
+        <div class="form-group"><label>O que falta de material ou ferramental</label><textarea id="f-herik-gaps_material" placeholder="O que o marketing poderia entregar?"></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green)"></span>Visão de Meta</div>
+      <div class="form-group"><label>Meta realista com base no que você já tem</label><textarea id="f-herik-visao_meta" placeholder="Ex: Com a carteira atual, estimo fechar 2 contratos no Q3..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-cyan" onclick="saveDiag('herik','privado')">Salvar diagnóstico</button>
+      <button class="btn btn-ghost" onclick="downloadPDF('herik')">⬇ Baixar PDF</button>
+    </div>
+    <hr><div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Histórico</div>
+    <div id="hist-herik"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+
+  <div id="diag-andreia" class="form-panel">
+    <div class="hl hl-g"><div class="hl-lbl" style="color:var(--green-dark)">Andreia Naves — Setor Público · Nacional</div>Foco nas relações ativas e no pipeline de licitações.</div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green)"></span>Carteira de Órgãos</div>
+      <div class="form-grid">
+        <div class="form-group form-full"><label>Órgãos com relacionamento ativo</label><textarea id="f-andreia-orgaos_ativos" placeholder="Ex: Ministério X (contato: João), Prefeitura Y (licitação em aberto)..."></textarea></div>
+        <div class="form-group form-full"><label>Órgãos estratégicos para os próximos 90 dias</label><textarea id="f-andreia-orgaos_estrategicos" placeholder="Ex: 1. TCU — edital de infraestrutura previsto para agosto..."></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green)"></span>Licitações e Proposições</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Editais que estão sendo monitorados</label><textarea id="f-andreia-editais_monitorados" placeholder="Ex: Edital nº 001/2026 — TCU — Colaboração..."></textarea></div>
+        <div class="form-group"><label>Proposições em andamento nos órgãos</label><textarea id="f-andreia-proposicoes_andamento" placeholder="Ex: Ministério X — apresentação marcada para 15/07..."></textarea></div>
+        <div class="form-group"><label>Ferramenta usada para monitorar licitações</label><input type="text" id="f-andreia-ferramenta_licitacao" placeholder="Ex: ComprasNet, Licitanet, nenhuma..."></div>
+        <div class="form-group"><label>Principais gargalos no processo público</label><textarea id="f-andreia-gargalos_processo" placeholder="Ex: Documentação demorada, prazo curto..."></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green)"></span>Visão de Meta</div>
+      <div class="form-group"><label>Meta realista com base no cenário atual</label><textarea id="f-andreia-visao_meta" placeholder="Ex: Participar de 3 licitações no Q3, ganhar 1..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="saveDiag('andreia','publico')">Salvar diagnóstico</button>
+      <button class="btn btn-ghost" onclick="downloadPDF('andreia')">⬇ Baixar PDF</button>
+    </div>
+    <hr><div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Histórico</div>
+    <div id="hist-andreia"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+
+  <div id="diag-luiz" class="form-panel">
+    <div class="hl hl-gd"><div class="hl-lbl" style="color:var(--green-dark)">Luiz Gomes — Setor Público · Nacional</div>Especialização em licitações. Foco no inventário completo da operação atual.</div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green-dark)"></span>Carteira Pública Ativa</div>
+      <div class="form-grid">
+        <div class="form-group form-full"><label>Órgãos com relacionamento ativo</label><textarea id="f-luiz-orgaos_ativos" placeholder="Liste os órgãos onde você tem contato e histórico..."></textarea></div>
+        <div class="form-group form-full"><label>Órgãos estratégicos para os próximos 90 dias</label><textarea id="f-luiz-orgaos_estrategicos" placeholder="Onde você vê maior potencial de contrato?"></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green-dark)"></span>Licitações e Ferramentas</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Editais ativamente monitorados</label><textarea id="f-luiz-editais_monitorados" placeholder="Número, órgão e valor estimado..."></textarea></div>
+        <div class="form-group"><label>Proposições e contratos em andamento</label><textarea id="f-luiz-proposicoes_andamento" placeholder="Licitações em habilitação ou proposta técnica..."></textarea></div>
+        <div class="form-group"><label>Ferramenta usada para monitorar editais</label><input type="text" id="f-luiz-ferramenta_licitacao" placeholder="Ex: ComprasNet, Licitanet, BLL..."></div>
+        <div class="form-group"><label>Principais gargalos operacionais</label><textarea id="f-luiz-gargalos_processo" placeholder="O que trava o processo hoje?"></textarea></div>
+      </div>
+    </div>
+    <div class="form-card"><div class="form-card-t"><span class="fc-dot" style="background:var(--green)"></span>Visão de Meta</div>
+      <div class="form-group"><label>Meta realista com base no que você já tem</label><textarea id="f-luiz-visao_meta" placeholder="Ex: Participar de 5 licitações no Q3, taxa de sucesso de 30%..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gdark" onclick="saveDiag('luiz','publico')">Salvar diagnóstico</button>
+      <button class="btn btn-ghost" onclick="downloadPDF('luiz')">⬇ Baixar PDF</button>
+    </div>
+    <hr><div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Histórico</div>
+    <div id="hist-luiz"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section id="tab-kpis" class="tab-sec">
+  <div class="sec-hdr"><h2>KPIs — Entrada Diária</h2><p>Insira seus dados todos os dias. Dashboard atualiza em tempo real para toda a equipe.</p></div>
+  <div class="period-row">
+    <span class="period-lbl">Período:</span>
+    <button class="period-btn on" onclick="setPeriod('hoje',this)">Hoje</button>
+    <button class="period-btn" onclick="setPeriod('semana',this)">Semana</button>
+    <button class="period-btn" onclick="setPeriod('mes',this)">Mês</button>
+    <button class="period-btn" onclick="setPeriod('quarter',this)">Quarter</button>
+  </div>
+  <div class="seg-tabs">
+    <button class="seg-tab on priv" onclick="switchSeg('privado',this)">🏢 Privado</button>
+    <button class="seg-tab pub"     onclick="switchSeg('publico',this)">🏛️ Público</button>
+  </div>
+  <div id="kpi-privado">
+    <div class="acc-grid">
+      <div class="acc-panel">
+        <div class="acc-head" style="background:var(--blue)"><div><div class="acc-head-name">Rodrigo</div><div class="acc-head-sub">Privado · SP</div></div></div>
+        <div class="acc-body">
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-lbl">Leads qualificados</span><input type="number" id="k-rodrigo-leads_qualificados" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Contatos feitos</span><input type="number" id="k-rodrigo-contatos_feitos" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Reuniões realizadas</span><input type="number" id="k-rodrigo-reunioes_realizadas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Propostas enviadas</span><input type="number" id="k-rodrigo-propostas_enviadas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Oportunidades abertas</span><input type="number" id="k-rodrigo-oportunidades_abertas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Avançaram de fase</span><input type="number" id="k-rodrigo-oportunidades_avancaram" min="0" value="0"></div>
+          </div>
+          <button class="btn btn-blue btn-sm" style="width:100%" onclick="saveKPI('rodrigo','privado')">Salvar dados de hoje</button>
+          <hr>
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dashboard — <span id="plbl-rodrigo">Hoje</span></div>
+          <div id="kpi-cards-rodrigo" class="kpi-grid"></div>
+          <div class="chart-wrap"><div class="chart-t">Últimos 14 dias</div><canvas id="chart-rodrigo" height="130"></canvas></div>
+        </div>
+      </div>
+      <div class="acc-panel">
+        <div class="acc-head" style="background:var(--cyan)"><div><div class="acc-head-name">Herik</div><div class="acc-head-sub">Privado · SP</div></div></div>
+        <div class="acc-body">
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-lbl">Leads qualificados</span><input type="number" id="k-herik-leads_qualificados" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Contatos feitos</span><input type="number" id="k-herik-contatos_feitos" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Reuniões realizadas</span><input type="number" id="k-herik-reunioes_realizadas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Propostas enviadas</span><input type="number" id="k-herik-propostas_enviadas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Oportunidades abertas</span><input type="number" id="k-herik-oportunidades_abertas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Avançaram de fase</span><input type="number" id="k-herik-oportunidades_avancaram" min="0" value="0"></div>
+          </div>
+          <button class="btn btn-cyan btn-sm" style="width:100%" onclick="saveKPI('herik','privado')">Salvar dados de hoje</button>
+          <hr>
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dashboard — <span id="plbl-herik">Hoje</span></div>
+          <div id="kpi-cards-herik" class="kpi-grid"></div>
+          <div class="chart-wrap"><div class="chart-t">Últimos 14 dias</div><canvas id="chart-herik" height="130"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="kpi-publico" style="display:none">
+    <div class="acc-grid">
+      <div class="acc-panel">
+        <div class="acc-head" style="background:var(--green)"><div><div class="acc-head-name">Andreia Naves</div><div class="acc-head-sub">Público · Nacional</div></div></div>
+        <div class="acc-body">
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-lbl">Órgãos contatados</span><input type="number" id="k-andreia-orgaos_contatados" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Editais monitorados</span><input type="number" id="k-andreia-editais_monitorados_dia" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Reuniões/visitas</span><input type="number" id="k-andreia-reunioes_visitas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Propostas CIGAM</span><input type="number" id="k-andreia-propostas_cigam" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Novos contatos inst.</span><input type="number" id="k-andreia-novos_contatos_inst" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Part. licitação</span><input type="number" id="k-andreia-participacoes_licitacao" min="0" value="0"></div>
+          </div>
+          <button class="btn btn-green btn-sm" style="width:100%" onclick="saveKPI('andreia','publico')">Salvar dados de hoje</button>
+          <hr>
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dashboard — <span id="plbl-andreia">Hoje</span></div>
+          <div id="kpi-cards-andreia" class="kpi-grid"></div>
+          <div class="chart-wrap"><div class="chart-t">Últimos 14 dias</div><canvas id="chart-andreia" height="130"></canvas></div>
+        </div>
+      </div>
+      <div class="acc-panel">
+        <div class="acc-head" style="background:var(--green-dark)"><div><div class="acc-head-name">Luiz Gomes</div><div class="acc-head-sub">Público · Nacional</div></div></div>
+        <div class="acc-body">
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-lbl">Órgãos contatados</span><input type="number" id="k-luiz-orgaos_contatados" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Editais monitorados</span><input type="number" id="k-luiz-editais_monitorados_dia" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Reuniões/visitas</span><input type="number" id="k-luiz-reunioes_visitas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Propostas CIGAM</span><input type="number" id="k-luiz-propostas_cigam" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Novos contatos inst.</span><input type="number" id="k-luiz-novos_contatos_inst" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-lbl">Part. licitação</span><input type="number" id="k-luiz-participacoes_licitacao" min="0" value="0"></div>
+          </div>
+          <button class="btn btn-gdark btn-sm" style="width:100%" onclick="saveKPI('luiz','publico')">Salvar dados de hoje</button>
+          <hr>
+          <div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dashboard — <span id="plbl-luiz">Hoje</span></div>
+          <div id="kpi-cards-luiz" class="kpi-grid"></div>
+          <div class="chart-wrap"><div class="chart-t">Últimos 14 dias</div><canvas id="chart-luiz" height="130"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAINEL -->
+<section id="tab-painel" class="tab-sec">
+  <div class="sec-hdr"><h2>Painel de Gestão</h2><p>Visão consolidada de todos os diagnósticos e KPIs do mês. Dados em tempo real do banco.</p></div>
+  <div class="sec-sep"><span class="sec-sep-bar" style="background:var(--blue)"></span>Diagnósticos — Último preenchimento por account</div>
+  <div id="painel-diags" class="painel-grid"><div class="loading"><div class="spinner"></div>Carregando diagnósticos...</div></div>
+  <div class="sec-sep" style="margin-top:8px"><span class="sec-sep-bar" style="background:var(--cyan)"></span>KPIs Privado — Mês atual</div>
+  <div style="background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;margin-bottom:24px">
+    <div id="painel-kpi-priv"><div class="loading" style="padding:16px"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+  <div class="sec-sep"><span class="sec-sep-bar" style="background:var(--green)"></span>KPIs Público — Mês atual</div>
+  <div style="background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden">
+    <div id="painel-kpi-pub"><div class="loading" style="padding:16px"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const SB = window.supabase.createClient('https://ybrdojfeqtguomzvjhfh.supabase.co','sb_publishable_-iJiOxilTUz6bO7YR3kiWw_-N4yZ1ym');
+const APRIV=['rodrigo','herik'], APUB=['andreia','luiz'], AALL=['rodrigo','herik','andreia','luiz'];
+const ANAMES={rodrigo:'Rodrigo',herik:'Herik',andreia:'Andreia Naves',luiz:'Luiz Gomes'};
+const ACOLORS={rodrigo:'#0E1DAA',herik:'#4DA4C7',andreia:'#0F9D58',luiz:'#0A7A42'};
+const KPRIV=[
+  {key:'leads_qualificados',label:'Leads',icon:'🎯',meta:'leads_qualificados_mes'},
+  {key:'contatos_feitos',label:'Contatos',icon:'📞',meta:'contatos_feitos_mes'},
+  {key:'reunioes_realizadas',label:'Reuniões',icon:'🤝',meta:'reunioes_mes'},
+  {key:'propostas_enviadas',label:'Propostas',icon:'📄',meta:'propostas_mes'},
+  {key:'oportunidades_abertas',label:'Oport.',icon:'🔓',meta:'oportunidades_abertas_meta'},
+  {key:'oportunidades_avancaram',label:'Avançaram',icon:'⬆️',meta:'oportunidades_avancaram_mes'}
+];
+const KPUB=[
+  {key:'orgaos_contatados',label:'Órgãos',icon:'🏛️',meta:'orgaos_contatados_mes'},
+  {key:'editais_monitorados_dia',label:'Editais',icon:'📋',meta:'editais_mes'},
+  {key:'reunioes_visitas',label:'Reuniões',icon:'🤝',meta:'reunioes_visitas_mes'},
+  {key:'propostas_cigam',label:'Propostas',icon:'📄',meta:'propostas_cigam_mes'},
+  {key:'novos_contatos_inst',label:'Contatos',icon:'👥',meta:'novos_contatos_mes'},
+  {key:'participacoes_licitacao',label:'Licitações',icon:'⚖️',meta:'participacoes_licitacao_mes'}
+];
+const DPRIV=[['Contas ativas','contas_ativas'],['Contas estratégicas','contas_estrategicas'],['Segmentos c/ tração','segmentos_tracao'],['Persona decisora','persona_decisora'],['Obstáculos','obstaculos'],['Gaps de material','gaps_material'],['Visão de meta','visao_meta']];
+const DPUB=[['Órgãos c/ relacionamento','orgaos_ativos'],['Órgãos estratégicos 90d','orgaos_estrategicos'],['Editais monitorados','editais_monitorados'],['Proposições andamento','proposicoes_andamento'],['Ferramenta licitação','ferramenta_licitacao'],['Gargalos no processo','gargalos_processo'],['Visão de meta','visao_meta']];
+let S={period:'hoje',seg:'privado',metas:{},charts:{},metaAcc:'rodrigo'};
+
+function toast(m,t='ok'){const e=document.getElementById('toast');e.textContent=m;e.className=t;setTimeout(()=>e.className='hidden',3500);}
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function today(){return new Date().toISOString().split('T')[0];}
+function dateRange(p){
+  const n=new Date(),pad=v=>String(v).padStart(2,'0'),fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,t=fmt(n);
+  if(p==='hoje')return{from:t,to:t};
+  if(p==='semana'){const d=new Date(n);d.setDate(n.getDate()-n.getDay()+(n.getDay()===0?-6:1));return{from:fmt(d),to:t};}
+  if(p==='mes')return{from:`${n.getFullYear()}-${pad(n.getMonth()+1)}-01`,to:t};
+  if(p==='quarter'){const q=Math.floor(n.getMonth()/3);return{from:`${n.getFullYear()}-${pad(q*3+1)}-01`,to:t};}
+  return{from:t,to:t};
+}
+function last14(){
+  const days=[],n=new Date();
+  for(let i=13;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);const p=v=>String(v).padStart(2,'0');days.push(`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`);}
+  return days;
+}
+function switchMain(tab,btn){
+  document.querySelectorAll('.tab-sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  btn.classList.add('on');
+  if(tab==='kpis')refreshSeg();
+  if(tab==='painel')loadPainel();
+}
+function switchDiag(acc,btn){
+  document.querySelectorAll('.form-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('#tab-diagnostico .acc-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('diag-'+acc).classList.add('on');
+  btn.classList.add('on');
+}
+function switchSeg(seg,btn){
+  S.seg=seg;
+  document.querySelectorAll('.seg-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('kpi-privado').style.display=seg==='privado'?'block':'none';
+  document.getElementById('kpi-publico').style.display=seg==='publico'?'block':'none';
+  refreshSeg();
+}
+function setPeriod(p,btn){
+  S.period=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const lbl={hoje:'Hoje',semana:'Semana',mes:'Mês',quarter:'Quarter'};
+  AALL.forEach(a=>{const e=document.getElementById('plbl-'+a);if(e)e.textContent=lbl[p];});
+  refreshSeg();
+}
+function refreshSeg(){
+  const accs=S.seg==='privado'?APRIV:APUB;
+  accs.forEach(a=>refreshKPI(a,S.seg==='privado'?'privado':'publico'));
+}
+
+async function saveDiag(acc,seg){
+  const isP=seg==='privado';
+  const flds=isP?['contas_ativas','contas_estrategicas','segmentos_tracao','persona_decisora','obstaculos','gaps_material','visao_meta']:['orgaos_ativos','orgaos_estrategicos','editais_monitorados','proposicoes_andamento','ferramenta_licitacao','gargalos_processo','visao_meta'];
+  const pl={account:acc,segmento:seg};
+  flds.forEach(f=>{const e=document.getElementById('f-'+acc+'-'+f);if(e)pl[f]=e.value;});
+  const{error}=await SB.from('diagnosticos').insert(pl);
+  if(error){toast('Erro: '+error.message,'err');console.error(error);return;}
+  toast('Diagnóstico salvo!','ok');
+  loadHistory(acc);
+}
+
+async function loadHistory(acc){
+  const el=document.getElementById('hist-'+acc);if(!el)return;
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  const{data,error}=await SB.from('diagnosticos').select('id,created_at,contas_ativas,orgaos_ativos,visao_meta').eq('account',acc).order('created_at',{ascending:false}).limit(8);
+  if(error||!data||data.length===0){el.innerHTML='<div class="empty"><div class="empty-icon">📝</div>Nenhum diagnóstico salvo ainda</div>';return;}
+  const isP=APRIV.includes(acc);
+  let h='<div class="hist-list">';
+  data.forEach(r=>{
+    const dt=new Date(r.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const prev=(isP?r.contas_ativas:r.orgaos_ativos)||r.visao_meta||'—';
+    h+=`<div class="hist-item"><span class="hist-item-date">${dt}</span><span class="hist-item-prev" title="${prev.replace(/"/g,'&quot;')}">${prev.substring(0,70)}${prev.length>70?'...':''}</span><div class="hist-item-btns"><button class="btn btn-ghost btn-sm" onclick="viewDiag('${r.id}','${acc}')">Ver</button><button class="btn btn-ghost btn-sm" onclick="restoreDiag('${r.id}','${acc}')">Restaurar</button></div></div>`;
+  });
+  el.innerHTML=h+'</div>';
+}
+
+async function viewDiag(id,acc){
+  const{data}=await SB.from('diagnosticos').select('*').eq('id',id).single();
+  if(!data){toast('Erro ao carregar','err');return;}
+  const isP=APRIV.includes(acc),flds=isP?DPRIV:DPUB;
+  const dt=new Date(data.created_at).toLocaleString('pt-BR');
+  let h=`<div class="m-title">${ANAMES[acc]}</div><div class="m-sub">Diagnóstico salvo em ${dt}</div>`;
+  flds.forEach(([label,key])=>{
+    const val=(data[key]||'').trim();
+    h+=`<div class="diag-field"><div class="diag-field-lbl">${label}</div>`;
+    h+=val?`<div class="diag-field-val">${val}</div>`:`<div class="diag-empty-txt">Não preenchido</div>`;
+    h+='</div>';
+  });
+  h+=`<div class="btn-row" style="margin-top:18px"><button class="btn btn-ghost" onclick="closeModal('modal-diag')">Fechar</button></div>`;
+  document.getElementById('modal-diag-content').innerHTML=h;
+  openModal('modal-diag');
+}
+
+async function restoreDiag(id,acc){
+  const{data}=await SB.from('diagnosticos').select('*').eq('id',id).single();
+  if(!data){toast('Erro ao restaurar','err');return;}
+  Object.keys(data).forEach(k=>{const e=document.getElementById('f-'+acc+'-'+k);if(e)e.value=data[k]||'';});
+  toast('Restaurado no formulário','info');
+}
+
+async function saveKPI(acc,seg){
+  const flds=seg==='privado'?['leads_qualificados','contatos_feitos','reunioes_realizadas','propostas_enviadas','oportunidades_abertas','oportunidades_avancaram']:['orgaos_contatados','editais_monitorados_dia','reunioes_visitas','propostas_cigam','novos_contatos_inst','participacoes_licitacao'];
+  const pl={account:acc,segmento:seg,data:today()};
+  flds.forEach(f=>{const e=document.getElementById('k-'+acc+'-'+f);pl[f]=e?parseInt(e.value)||0:0;});
+  const{error}=await SB.from('kpi_diario').upsert(pl,{onConflict:'account,data'});
+  if(error){toast('Erro: '+error.message,'err');console.error(error);return;}
+  toast('KPIs de hoje salvos!','ok');
+  refreshKPI(acc,seg);
+}
+
+async function refreshKPI(acc,seg){
+  const{from,to}=dateRange(S.period);
+  const{data}=await SB.from('kpi_diario').select('*').eq('account',acc).gte('data',from).lte('data',to);
+  const metas=S.metas[acc]||{};
+  const flds=seg==='privado'?KPRIV:KPUB;
+  const totals={};
+  (data||[]).forEach(r=>flds.forEach(f=>{totals[f.key]=(totals[f.key]||0)+(r[f.key]||0);}));
+  const c=document.getElementById('kpi-cards-'+acc);if(!c)return;
+  c.innerHTML=flds.map(f=>{
+    const v=totals[f.key]||0,mv=metas[f.meta]||0;
+    const pct=mv>0?Math.min(100,Math.round(v/mv*100)):0;
+    const pc=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+    return `<div class="kpi-card"><div class="kpi-icon">${f.icon}</div><div class="kpi-num" style="color:${ACOLORS[acc]}">${v}</div><div class="kpi-lbl">${f.label}</div>${mv>0?`<div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${pct}%;background:${pc}"></div></div><span class="kpi-pct" style="color:${pc}">${pct}% / ${mv}</span>`:''}</div>`;
+  }).join('');
+  renderChart(acc,seg);
+}
+
+async function renderChart(acc,seg){
+  const days=last14();
+  const{data}=await SB.from('kpi_diario').select('*').eq('account',acc).gte('data',days[0]).lte('data',days[days.length-1]);
+  const byDay={};(data||[]).forEach(r=>byDay[r.data]=r);
+  const cf=seg==='privado'
+    ?[{key:'leads_qualificados',label:'Leads',color:'rgba(14,29,170,.85)'},{key:'propostas_enviadas',label:'Propostas',color:'rgba(77,164,199,.85)'},{key:'reunioes_realizadas',label:'Reuniões',color:'rgba(15,157,88,.85)'}]
+    :[{key:'orgaos_contatados',label:'Órgãos',color:'rgba(15,157,88,.85)'},{key:'propostas_cigam',label:'Propostas',color:'rgba(10,122,66,.85)'},{key:'reunioes_visitas',label:'Reuniões',color:'rgba(77,164,199,.85)'}];
+  if(S.charts[acc])S.charts[acc].destroy();
+  const canvas=document.getElementById('chart-'+acc);if(!canvas)return;
+  S.charts[acc]=new Chart(canvas,{type:'line',data:{labels:days.map(d=>d.slice(5)),datasets:cf.map(f=>({label:f.label,data:days.map(d=>(byDay[d]?byDay[d][f.key]:0)||0),borderColor:f.color,backgroundColor:f.color.replace('.85','.08'),borderWidth:2,tension:.3,pointRadius:2,fill:true}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,font:{size:9},padding:6}},tooltip:{mode:'index',intersect:false}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:8},color:'#71717A'}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:8},color:'#71717A'},beginAtZero:true}}}});
+}
+
+async function loadTodayKPI(acc,seg){
+  const{data}=await SB.from('kpi_diario').select('*').eq('account',acc).eq('data',today());
+  if(!data||data.length===0)return;
+  const r=data[0];
+  const flds=seg==='privado'?['leads_qualificados','contatos_feitos','reunioes_realizadas','propostas_enviadas','oportunidades_abertas','oportunidades_avancaram']:['orgaos_contatados','editais_monitorados_dia','reunioes_visitas','propostas_cigam','novos_contatos_inst','participacoes_licitacao'];
+  flds.forEach(f=>{const e=document.getElementById('k-'+acc+'-'+f);if(e&&r[f]!=null)e.value=r[f];});
+}
+
+async function loadMetas(){
+  const{data}=await SB.from('metas').select('*');
+  if(data)data.forEach(m=>S.metas[m.account]=m);
+}
+
+async function loadMetasModal(){
+  await loadMetas();
+  AALL.forEach(acc=>{
+    const m=S.metas[acc]||{};
+    document.querySelectorAll(`#mf-${acc} input[type=number]`).forEach(inp=>{
+      const key=inp.id.replace('m-'+acc+'-','');
+      if(m[key]!=null)inp.value=m[key];
+    });
+  });
+}
+
+async function saveMetas(){
+  const acc=S.metaAcc;
+  const pl={account:acc,segmento:APRIV.includes(acc)?'privado':'publico'};
+  document.querySelectorAll(`#mf-${acc} input[type=number]`).forEach(inp=>{pl[inp.id.replace('m-'+acc+'-','')]=parseInt(inp.value)||0;});
+  const{error}=await SB.from('metas').upsert(pl,{onConflict:'account'});
+  if(error){toast('Erro: '+error.message,'err');return;}
+  toast('Metas de '+ANAMES[acc]+' salvas!','ok');
+  await loadMetas();
+}
+
+function switchMetaAcc(acc,btn){
+  S.metaAcc=acc;
+  AALL.forEach(a=>{const f=document.getElementById('mf-'+a);if(f)f.style.display=a===acc?'block':'none';});
+  btn.closest('.acc-tabs').querySelectorAll('.acc-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+async function loadPainel(){
+  // Diagnósticos
+  const container=document.getElementById('painel-diags');
+  container.innerHTML='<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  const results=await Promise.all(AALL.map(acc=>SB.from('diagnosticos').select('*').eq('account',acc).order('created_at',{ascending:false}).limit(1)));
+  let h='';
+  AALL.forEach((acc,i)=>{
+    const row=results[i].data&&results[i].data.length>0?results[i].data[0]:null;
+    const isP=APRIV.includes(acc),flds=isP?DPRIV:DPUB,color=ACOLORS[acc];
+    h+=`<div class="painel-card"><div class="painel-head" style="background:${color}"><div><div class="painel-name">${ANAMES[acc]}</div><div class="painel-seg">${isP?'Setor Privado':'Setor Público'}</div></div>${row?`<button class="btn btn-sm" style="background:rgba(255,255,255,.18);color:#fff;border:none;cursor:pointer" onclick="viewDiag('${row.id}','${acc}')">Ver completo</button>`:''}</div><div class="painel-body">`;
+    if(!row){h+=`<div class="empty"><div class="empty-icon">📝</div>Sem diagnóstico ainda</div>`;}
+    else{
+      h+=`<div class="diag-date">Preenchido em ${new Date(row.created_at).toLocaleString('pt-BR')}</div>`;
+      let shown=0;
+      flds.forEach(([label,key])=>{
+        if(shown>=3)return;
+        const val=(row[key]||'').trim();if(!val)return;
+        h+=`<div class="diag-field"><div class="diag-field-lbl">${label}</div><div class="diag-field-val">${val.substring(0,180)}${val.length>180?'...':''}</div></div>`;
+        shown++;
+      });
+    }
+    h+='</div></div>';
+  });
+  container.innerHTML=h;
+
+  // KPI Privado
+  const n=new Date(),pad=v=>String(v).padStart(2,'0');
+  const mesI=`${n.getFullYear()}-${pad(n.getMonth()+1)}-01`,mesT=today();
+  const{data:kdata}=await SB.from('kpi_diario').select('*').gte('data',mesI).lte('data',mesT);
+  const totals={};AALL.forEach(a=>totals[a]={});
+  (kdata||[]).forEach(r=>{if(!totals[r.account])return;[...KPRIV,...KPUB].forEach(f=>{totals[r.account][f.key]=(totals[r.account][f.key]||0)+(r[f.key]||0);});});
+
+  function makeTable(accs,fields){
+    let t=`<table class="kpi-sum-table"><thead><tr><th>KPI</th>`;
+    accs.forEach(a=>t+=`<th style="color:${ACOLORS[a]}">${ANAMES[a]}</th>`);
+    t+='<th>Total</th></tr></thead><tbody>';
+    fields.forEach(f=>{
+      const tot=accs.reduce((s,a)=>s+(totals[a][f.key]||0),0);
+      t+=`<tr><td>${f.icon} ${f.label}</td>`;
+      accs.forEach(a=>{const v=totals[a][f.key]||0;t+=`<td><span class="kval" style="color:${ACOLORS[a]}">${v}</span></td>`;});
+      t+=`<td><strong>${tot}</strong></td></tr>`;
+    });
+    return t+'</tbody></table>';
+  }
+  document.getElementById('painel-kpi-priv').innerHTML=makeTable(APRIV,KPRIV);
+  document.getElementById('painel-kpi-pub').innerHTML=makeTable(APUB,KPUB);
+}
+
+function downloadPDF(acc){
+  const isP=APRIV.includes(acc),flds=isP?DPRIV:DPUB;
+  let h=`<div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:32px"><div style="border-bottom:3px solid #0E1DAA;padding-bottom:16px;margin-bottom:24px"><h1 style="color:#0E1DAA;font-size:22px;margin:0">XP On — Diagnóstico Comercial</h1><p style="color:#71717A;margin:6px 0 0">Account: <strong>${ANAMES[acc]}</strong> · ${isP?'Setor Privado':'Setor Público'} · ${new Date().toLocaleDateString('pt-BR')}</p></div>`;
+  flds.forEach(([label,key])=>{const e=document.getElementById('f-'+acc+'-'+key);const v=(e?e.value:'')||'—';h+=`<div style="margin-bottom:18px"><h3 style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717A;margin:0 0 6px">${label}</h3><div style="background:#F5F5F5;padding:12px;border-radius:6px;font-size:13px;white-space:pre-wrap">${v}</div></div>`;});
+  h+=`<div style="margin-top:32px;padding-top:16px;border-top:1px solid #DEDEDE;font-size:10px;color:#9CA3AF">Gerado em ${new Date().toLocaleString('pt-BR')} · XP On Comercial em Ação</div></div>`;
+  const area=document.getElementById('print-area');area.innerHTML=h;area.style.display='block';window.print();setTimeout(()=>area.style.display='none',1000);
+}
+
+document.getElementById('btn-metas').onclick=async()=>{await loadMetasModal();openModal('modal-metas');};
+
+async function init(){
+  await loadMetas();
+  AALL.forEach(a=>loadHistory(a));
+  APRIV.forEach(a=>loadTodayKPI(a,'privado'));
+  APUB.forEach(a=>loadTodayKPI(a,'publico'));
+  APRIV.forEach(a=>refreshKPI(a,'privado'));
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XP On — Comercial em Ação</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0E1DAA;--blue-dark:#060D4D;--blue-soft:#E8EAFA;
+  --cyan:#4DA4C7;--cyan-soft:#E5F1F5;
+  --green:#0F9D58;--green-soft:#E6F4EC;--green-dark:#0A7A42;
+  --red:#D93025;--red-soft:#FBE9E7;
+  --amber:#F59E0B;--amber-soft:#FEF3C7;
+  --g900:#0A0A0A;--g700:#3F3F46;--g500:#71717A;
+  --g300:#C7C7C7;--g200:#DEDEDE;--g100:#EEEEEE;--g50:#F5F5F5;
+  --bg:#F0F0F5;--surface:#FFFFFF;--r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--g900);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* HEADER */
+header{background:var(--blue-dark);height:56px;display:flex;align-items:center;padding:0 24px;gap:20px;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.logo{font-size:18px;font-weight:700;color:#fff;white-space:nowrap}.logo span{color:var(--cyan)}
+.header-sep{color:rgba(255,255,255,.2);font-size:16px}
+.header-title{font-size:13px;color:rgba(255,255,255,.5);white-space:nowrap}
+.main-tabs{display:flex;gap:4px;margin-left:auto}
+.main-tab{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);padding:6px 18px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.main-tab:hover{background:rgba(255,255,255,.14);color:#fff}
+.main-tab.on{background:var(--cyan);color:#fff}
+.header-btns{display:flex;gap:8px;margin-left:12px}
+.hbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.hbtn:hover{background:rgba(255,255,255,.18);color:#fff}
+
+/* MAIN LAYOUT */
+main{padding:24px;max-width:1200px;margin:0 auto}
+.tab-sec{display:none}.tab-sec.on{display:block}
+
+/* SECTION HEADER */
+.sec-hdr{margin-bottom:24px}
+.sec-hdr h2{font-size:22px;font-weight:700;color:var(--blue-dark);letter-spacing:-.3px}
+.sec-hdr p{font-size:13px;color:var(--g500);margin-top:4px}
+
+/* ACCOUNT TABS */
+.acc-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:4px;width:fit-content}
+.acc-tab{background:none;border:none;padding:8px 20px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--g500);transition:all .15s}
+.acc-tab:hover{color:var(--g900)}
+.acc-tab.on{color:#fff}
+.acc-tab[data-account="rodrigo"].on{background:var(--blue)}
+.acc-tab[data-account="herik"].on{background:var(--cyan)}
+.acc-tab[data-account="andreia"].on{background:var(--green)}
+.acc-tab[data-account="luiz"].on{background:var(--green-dark)}
+
+/* FORM */
+.form-panel{display:none}.form-panel.on{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+label{font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.8px}
+.form-hint{font-size:11px;color:var(--g500);margin-top:-3px;font-weight:400;text-transform:none;letter-spacing:0}
+input[type=text],input[type=number],input[type=date],textarea,select{
+  background:var(--surface);border:1px solid var(--g200);border-radius:7px;padding:9px 12px;
+  font-family:inherit;font-size:13px;color:var(--g900);width:100%;transition:border .15s;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(14,29,170,.08)}
+textarea{min-height:80px}
+.form-card{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:22px;margin-bottom:16px}
+.form-card-title{font-size:13px;font-weight:700;color:var(--blue-dark);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.form-card-title span{width:4px;height:16px;border-radius:2px;display:inline-block}
+
+/* BUTTONS */
+.btn{padding:9px 20px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-dark)}
+.btn-secondary{background:var(--g100);color:var(--g700);border:1px solid var(--g200)}.btn-secondary:hover{background:var(--g200)}
+.btn-cyan{background:var(--cyan);color:#fff}.btn-cyan:hover{filter:brightness(.9)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{filter:brightness(.9)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+
+/* STATS / KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.kpi-card{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:16px}
+.kpi-icon{font-size:18px;margin-bottom:6px}
+.kpi-num{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1}
+.kpi-label{font-size:11px;color:var(--g500);margin-top:3px}
+.kpi-meta{font-size:11px;margin-top:6px;display:flex;align-items:center;gap:6px}
+.kpi-bar-bg{height:4px;background:var(--g100);border-radius:2px;flex:1}
+.kpi-bar-fill{height:4px;border-radius:2px;transition:width .3s}
+.kpi-pct{font-size:10px;font-weight:700;min-width:32px;text-align:right}
+.delta{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:2px}
+.delta.up{color:var(--green)}.delta.dn{color:var(--red)}.delta.eq{color:var(--g500)}
+
+/* SEGMENT TABS */
+.seg-tabs{display:flex;gap:4px;margin-bottom:20px}
+.seg-tab{background:var(--surface);border:1px solid var(--g200);padding:8px 22px;border-radius:var(--r);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--g500);transition:all .15s}
+.seg-tab.on.privado{background:var(--blue);color:#fff;border-color:var(--blue)}
+.seg-tab.on.publico{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* PERIOD SELECTOR */
+.period-row{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.period-label{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+.period-btn{background:var(--surface);border:1px solid var(--g200);padding:5px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--g500);transition:all .15s}
+.period-btn.on{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+
+/* TWO-COL ACCOUNT GRID */
+.acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.acc-panel{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);overflow:hidden}
+.acc-panel-head{padding:14px 18px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.acc-panel-name{font-size:15px;font-weight:700}
+.acc-panel-sub{font-size:11px;opacity:.75}
+.acc-panel-body{padding:18px}
+
+/* ENTRY FORM MINI */
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.entry-field{display:flex;flex-direction:column;gap:3px}
+.entry-label{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.7px}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{opacity:1}
+
+/* CHART */
+.chart-wrap{background:var(--g50);border-radius:8px;padding:14px;margin-top:12px;position:relative}
+.chart-title{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+canvas{max-height:160px}
+
+/* HISTORY TABLE */
+.hist-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.hist-table th{text-align:left;padding:6px 10px;background:var(--g50);color:var(--g500);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--g200)}
+.hist-table td{padding:8px 10px;border-bottom:1px solid var(--g100);color:var(--g700);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:hover td{background:var(--g50)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:200;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;color:#fff;max-width:360px;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .25s;pointer-events:none}
+#toast.ok{background:var(--green)}
+#toast.err{background:var(--red)}
+#toast.info{background:var(--blue)}
+#toast.hidden{opacity:0;transform:translateY(8px)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(6,13,77,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.hidden{display:none}
+.modal-box{background:var(--surface);border-radius:14px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-title{font-size:18px;font-weight:700;color:var(--blue-dark);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--g500);margin-bottom:20px}
+.modal-close{float:right;background:var(--g100);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;line-height:28px;text-align:center}
+.modal-section{margin-bottom:20px}
+.modal-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g500);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--g100)}
+
+/* HIGHLIGHT BOX */
+.hl-box{background:var(--blue-soft);border:1px solid rgba(14,29,170,.13);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--blue-dark)}
+.hl-box.c{background:var(--cyan-soft);border-color:rgba(77,164,199,.22)}
+.hl-box.g{background:var(--green-soft);border-color:rgba(15,157,88,.2)}
+.hl-box.warn{background:var(--amber-soft);border-color:rgba(245,158,11,.25);color:#92400E}
+.hl-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--blue);margin-bottom:5px}
+.hl-box.c .hl-lbl{color:#3A8AAF}
+.hl-box.g .hl-lbl{color:var(--green)}
+.hl-box.warn .hl-lbl{color:#B45309}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--g200);margin:20px 0}
+
+/* STATUS BADGE */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
+.badge-b{background:var(--blue-soft);color:var(--blue)}
+.badge-g{background:var(--green-soft);color:var(--green)}
+.badge-c{background:var(--cyan-soft);color:#3A8AAF}
+
+/* PRINT */
+@media print{
+  header,#modal-email,#modal-metas,#toast,.main-tabs,.hbtn{display:none!important}
+  #print-area{display:block!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+#print-area{display:none}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:32px;color:var(--g500);font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:8px}
+
+/* LOADING */
+.loading{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--g500);padding:12px}
+.spinner{width:16px;height:16px;border:2px solid var(--g200);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast" class="hidden"></div>
+
+<!-- PRINT AREA -->
+<div id="print-area"></div>
+
+<!-- MODAL: EmailJS Config -->
+<div id="modal-email" class="modal-overlay hidden">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-email')">✕</button>
+    <div class="modal-title">Configurar Envio de E-mail</div>
+    <div class="modal-sub">Configure o EmailJS para enviar diagnósticos automaticamente. Crie uma conta gratuita em <a href="https://emailjs.com" target="_blank" style="color:var(--blue)">emailjs.com</a> (200 e-mails/mês grátis).</div>
+
+    <div class="hl-box warn">
+      <div class="hl-lbl">Passo a passo</div>
+      1. Crie conta em emailjs.com → 2. Add Service (Gmail ou outro) → copie o <strong>Service ID</strong><br>
+      3. Create Template → defina o template → copie o <strong>Template ID</strong><br>
+      4. Account → API Keys → copie a <strong>Public Key</strong>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Service ID</label>
+        <input type="text" id="ejs-service" placeholder="service_xxxxxxx">
+      </div>
+      <div class="form-group">
+        <label>Template ID</label>
+        <input type="text" id="ejs-template" placeholder="template_xxxxxxx">
+      </div>
+      <div class="form-group form-full">
+        <label>Public Key</label>
+        <input type="text" id="ejs-pubkey" placeholder="xxxxxxxxxxxxxxxxxxx">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEmailConfig()">Salvar configuração</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-email')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Metas -->
+<div id="modal-metas" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:680px">
+    <button class="modal-close" onclick="closeModal('modal-metas')">✕</button>
+    <div class="modal-title">Metas Mensais</div>
+    <div class="modal-sub">Configure as metas mensais por account. Os valores são salvos e visíveis para todo o time.</div>
+
+    <div class="acc-tabs" style="margin-bottom:16px">
+      <button class="acc-tab on" data-account="rodrigo" onclick="switchMetaAccount('rodrigo',this)">Rodrigo</button>
+      <button class="acc-tab" data-account="herik" onclick="switchMetaAccount('herik',this)">Herik</button>
+      <button class="acc-tab" data-account="andreia" onclick="switchMetaAccount('andreia',this)">Andreia Naves</button>
+      <button class="acc-tab" data-account="luiz" onclick="switchMetaAccount('luiz',this)">Luiz Gomes</button>
+    </div>
+
+    <div id="metas-form-rodrigo" class="metas-form on">
+      <div class="form-grid">
+        <div class="form-group"><label>Leads qualificados/mês</label><input type="number" id="m-rodrigo-leads_qualificados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Contatos feitos/mês</label><input type="number" id="m-rodrigo-contatos_feitos_mes" value="60" min="0"></div>
+        <div class="form-group"><label>Reuniões realizadas/mês</label><input type="number" id="m-rodrigo-reunioes_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Propostas enviadas/mês</label><input type="number" id="m-rodrigo-propostas_mes" value="8" min="0"></div>
+        <div class="form-group"><label>Oportunidades abertas (meta)</label><input type="number" id="m-rodrigo-oportunidades_abertas_meta" value="10" min="0"></div>
+        <div class="form-group"><label>Avançaram de fase/mês</label><input type="number" id="m-rodrigo-oportunidades_avancaram_mes" value="4" min="0"></div>
+      </div>
+    </div>
+
+    <div id="metas-form-herik" class="metas-form" style="display:none">
+      <div class="form-grid">
+        <div class="form-group"><label>Leads qualificados/mês</label><input type="number" id="m-herik-leads_qualificados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Contatos feitos/mês</label><input type="number" id="m-herik-contatos_feitos_mes" value="60" min="0"></div>
+        <div class="form-group"><label>Reuniões realizadas/mês</label><input type="number" id="m-herik-reunioes_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Propostas enviadas/mês</label><input type="number" id="m-herik-propostas_mes" value="8" min="0"></div>
+        <div class="form-group"><label>Oportunidades abertas (meta)</label><input type="number" id="m-herik-oportunidades_abertas_meta" value="10" min="0"></div>
+        <div class="form-group"><label>Avançaram de fase/mês</label><input type="number" id="m-herik-oportunidades_avancaram_mes" value="4" min="0"></div>
+      </div>
+    </div>
+
+    <div id="metas-form-andreia" class="metas-form" style="display:none">
+      <div class="form-grid">
+        <div class="form-group"><label>Órgãos contatados/mês</label><input type="number" id="m-andreia-orgaos_contatados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Editais monitorados/mês</label><input type="number" id="m-andreia-editais_mes" value="30" min="0"></div>
+        <div class="form-group"><label>Reuniões/visitas/mês</label><input type="number" id="m-andreia-reunioes_visitas_mes" value="10" min="0"></div>
+        <div class="form-group"><label>Propostas no CIGAM/mês</label><input type="number" id="m-andreia-propostas_cigam_mes" value="5" min="0"></div>
+        <div class="form-group"><label>Novos contatos institucionais/mês</label><input type="number" id="m-andreia-novos_contatos_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Participações em licitação/mês</label><input type="number" id="m-andreia-participacoes_licitacao_mes" value="8" min="0"></div>
+      </div>
+    </div>
+
+    <div id="metas-form-luiz" class="metas-form" style="display:none">
+      <div class="form-grid">
+        <div class="form-group"><label>Órgãos contatados/mês</label><input type="number" id="m-luiz-orgaos_contatados_mes" value="20" min="0"></div>
+        <div class="form-group"><label>Editais monitorados/mês</label><input type="number" id="m-luiz-editais_mes" value="30" min="0"></div>
+        <div class="form-group"><label>Reuniões/visitas/mês</label><input type="number" id="m-luiz-reunioes_visitas_mes" value="10" min="0"></div>
+        <div class="form-group"><label>Propostas no CIGAM/mês</label><input type="number" id="m-luiz-propostas_cigam_mes" value="5" min="0"></div>
+        <div class="form-group"><label>Novos contatos institucionais/mês</label><input type="number" id="m-luiz-novos_contatos_mes" value="15" min="0"></div>
+        <div class="form-group"><label>Participações em licitação/mês</label><input type="number" id="m-luiz-participacoes_licitacao_mes" value="8" min="0"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveMetas()">Salvar metas</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-metas')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">XP<span>on</span></div>
+  <span class="header-sep">|</span>
+  <span class="header-title">Comercial em Ação</span>
+  <nav class="main-tabs">
+    <button class="main-tab on" onclick="switchMain('diagnostico',this)">Diagnóstico</button>
+    <button class="main-tab" onclick="switchMain('kpis',this)">KPIs</button>
+  </nav>
+  <div class="header-btns">
+    <button class="hbtn" onclick="openModal('modal-metas')">🎯 Metas</button>
+    <button class="hbtn" onclick="openModal('modal-email')">✉️ E-mail</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================================================
+     DIAGNÓSTICO
+============================================================ -->
+<section id="tab-diagnostico" class="tab-sec on">
+  <div class="sec-hdr">
+    <h2>Diagnóstico por Account</h2>
+    <p>Preencha as informações da sua carteira. Dados salvos no Supabase e visíveis para gestão em tempo real.</p>
+  </div>
+
+  <div class="acc-tabs">
+    <button class="acc-tab on" data-account="rodrigo" onclick="switchDiag('rodrigo',this)">Rodrigo</button>
+    <button class="acc-tab" data-account="herik" onclick="switchDiag('herik',this)">Herik</button>
+    <button class="acc-tab" data-account="andreia" onclick="switchDiag('andreia',this)">Andreia Naves</button>
+    <button class="acc-tab" data-account="luiz" onclick="switchDiag('luiz',this)">Luiz Gomes</button>
+  </div>
+
+  <!-- RODRIGO -->
+  <div id="diag-rodrigo" class="form-panel on">
+    <div class="hl-box">
+      <div class="hl-lbl">Rodrigo — Setor Privado · São Paulo</div>
+      Carteira XP Privada. Preencha com base no que você tem hoje na praça SP.
+    </div>
+    <form onsubmit="return false">
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--blue)"></span>Carteira Atual</div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Contas ativas na carteira</label>
+            <span class="form-hint">Liste as contas que estão em alguma fase ativa hoje</span>
+            <textarea id="f-rodrigo-contas_ativas" placeholder="Ex: Empresa A (negociação), Empresa B (proposta enviada), Empresa C (demo marcada)..."></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>Contas estratégicas — top 5 com maior potencial em 90 dias</label>
+            <textarea id="f-rodrigo-contas_estrategicas" placeholder="Ex: 1. Empresa X — ticket estimado R$80k, decisão prevista para julho..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--cyan)"></span>Segmentos e Personas</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Segmentos com maior tração percebida</label>
+            <span class="form-hint">Quais setores você vê mais abertura?</span>
+            <input type="text" id="f-rodrigo-segmentos_tracao" placeholder="Ex: Financeiro, Saúde, Tech">
+          </div>
+          <div class="form-group">
+            <label>Persona decisora mais comum</label>
+            <span class="form-hint">Quem você está conversando nas contas mais fortes?</span>
+            <input type="text" id="f-rodrigo-persona_decisora" placeholder="Ex: CTO, Gerente de TI, CIO">
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--red)"></span>Obstáculos e Gaps</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Principal obstáculo operacional hoje</label>
+            <textarea id="f-rodrigo-obstaculos" placeholder="Ex: Proposta demora para sair, falta de material técnico, não tenho visibilidade de quem decide..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>O que falta de material ou ferramental</label>
+            <textarea id="f-rodrigo-gaps_material" placeholder="Ex: Case de sucesso no setor financeiro, one-pager de Cibersegurança, Apollo com mais créditos..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green)"></span>Visão de Meta</div>
+        <div class="form-group">
+          <label>O que seria uma meta realista com base no que você já tem?</label>
+          <span class="form-hint">Seja específico: volume de propostas, receita esperada, n° de clientes novos...</span>
+          <textarea id="f-rodrigo-visao_meta" placeholder="Ex: Acredito que consigo fechar 3 contratos novos no Q3, totalizando R$240k. Tenho 8 contas aquecidas que podem avançar..."></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveDiag('rodrigo','privado')">Salvar diagnóstico</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('rodrigo')">Baixar PDF</button>
+        <button class="btn btn-secondary btn-sm" onclick="sendEmail('rodrigo')">Enviar por e-mail</button>
+      </div>
+    </form>
+    <hr>
+    <div style="font-size:12px;font-weight:700;color:var(--g700);margin-bottom:8px">Histórico de preenchimentos</div>
+    <div id="hist-rodrigo"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+
+  <!-- HERIK -->
+  <div id="diag-herik" class="form-panel">
+    <div class="hl-box c">
+      <div class="hl-lbl">Herik — Setor Privado · São Paulo</div>
+      Carteira XP Privada. Preencha com foco nas contas que você atende — e onde há sobreposição ou complementaridade com Rodrigo.
+    </div>
+    <form onsubmit="return false">
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--cyan)"></span>Carteira Atual</div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Contas ativas na carteira</label>
+            <textarea id="f-herik-contas_ativas" placeholder="Ex: Empresa A (negociação), Empresa B (proposta enviada)..."></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>Contas estratégicas — top 5 com maior potencial em 90 dias</label>
+            <textarea id="f-herik-contas_estrategicas" placeholder="Ex: 1. Empresa X — ticket estimado R$50k..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--cyan)"></span>Segmentos e Personas</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Segmentos com maior tração percebida</label>
+            <input type="text" id="f-herik-segmentos_tracao" placeholder="Ex: Indústria, Varejo, Serviços">
+          </div>
+          <div class="form-group">
+            <label>Persona decisora mais comum</label>
+            <input type="text" id="f-herik-persona_decisora" placeholder="Ex: Gerente de TI, CTO">
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--red)"></span>Obstáculos e Gaps</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Principal obstáculo operacional hoje</label>
+            <textarea id="f-herik-obstaculos" placeholder="O que trava o seu ciclo de venda hoje?"></textarea>
+          </div>
+          <div class="form-group">
+            <label>O que falta de material ou ferramental</label>
+            <textarea id="f-herik-gaps_material" placeholder="O que o marketing poderia entregar que ajudaria?"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green)"></span>Visão de Meta</div>
+        <div class="form-group">
+          <label>O que seria uma meta realista com base no que você já tem?</label>
+          <textarea id="f-herik-visao_meta" placeholder="Ex: Com a carteira atual, estimo fechar 2 contratos no Q3..."></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-cyan" onclick="saveDiag('herik','privado')">Salvar diagnóstico</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('herik')">Baixar PDF</button>
+        <button class="btn btn-secondary btn-sm" onclick="sendEmail('herik')">Enviar por e-mail</button>
+      </div>
+    </form>
+    <hr>
+    <div style="font-size:12px;font-weight:700;color:var(--g700);margin-bottom:8px">Histórico de preenchimentos</div>
+    <div id="hist-herik"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+
+  <!-- ANDREIA -->
+  <div id="diag-andreia" class="form-panel">
+    <div class="hl-box g">
+      <div class="hl-lbl">Andreia Naves — Setor Público · Nacional</div>
+      Carteira de órgãos públicos em todo o Brasil. Preencha com foco nas relações ativas e no pipeline de licitações.
+    </div>
+    <form onsubmit="return false">
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green)"></span>Carteira de Órgãos</div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Órgãos com relacionamento ativo</label>
+            <span class="form-hint">Liste os órgãos onde você tem contato estabelecido</span>
+            <textarea id="f-andreia-orgaos_ativos" placeholder="Ex: Ministério X (contato: João, analista sênior), Prefeitura Y (licitação em aberto)..."></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>Órgãos estratégicos para os próximos 90 dias</label>
+            <textarea id="f-andreia-orgaos_estrategicos" placeholder="Ex: 1. TCU — edital de infraestrutura previsto para agosto..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green)"></span>Licitações e Proposições</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Editais que estão sendo monitorados atualmente</label>
+            <textarea id="f-andreia-editais_monitorados" placeholder="Ex: Edital nº 001/2026 — TCU — Colaboração, valor estimado R$2M..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Proposições em andamento dentro dos órgãos</label>
+            <span class="form-hint">Onde a XP On está sendo apresentada proativamente</span>
+            <textarea id="f-andreia-proposicoes_andamento" placeholder="Ex: Ministério X — apresentação de proposta de Cibersegurança marcada para 15/07..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Ferramenta utilizada hoje para monitorar licitações</label>
+            <input type="text" id="f-andreia-ferramenta_licitacao" placeholder="Ex: ComprasNet manual, Licitanet, nenhuma...">
+          </div>
+          <div class="form-group">
+            <label>Principais gargalos no processo público</label>
+            <textarea id="f-andreia-gargalos_processo" placeholder="Ex: Documentação demorada, prazo curto para habilitação..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green)"></span>Visão de Meta</div>
+        <div class="form-group">
+          <label>O que seria uma meta realista com base no cenário atual?</label>
+          <textarea id="f-andreia-visao_meta" placeholder="Ex: Participar de 3 licitações no Q3, ganhar 1. Abertura de relacionamento em 5 novos órgãos..."></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="saveDiag('andreia','publico')">Salvar diagnóstico</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('andreia')">Baixar PDF</button>
+        <button class="btn btn-secondary btn-sm" onclick="sendEmail('andreia')">Enviar por e-mail</button>
+      </div>
+    </form>
+    <hr>
+    <div style="font-size:12px;font-weight:700;color:var(--g700);margin-bottom:8px">Histórico de preenchimentos</div>
+    <div id="hist-andreia"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+
+  <!-- LUIZ -->
+  <div id="diag-luiz" class="form-panel">
+    <div class="hl-box" style="background:#EFF7F2;border-color:rgba(10,122,66,.2)">
+      <div class="hl-lbl" style="color:var(--green-dark)">Luiz Gomes — Setor Público · Nacional</div>
+      Especialização em licitações e processos públicos. Foco no inventário completo da operação atual.
+    </div>
+    <form onsubmit="return false">
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green-dark)"></span>Carteira Pública Ativa</div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Órgãos com relacionamento ativo</label>
+            <textarea id="f-luiz-orgaos_ativos" placeholder="Liste os órgãos onde você tem contato e histórico de atuação..."></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>Órgãos estratégicos para os próximos 90 dias</label>
+            <textarea id="f-luiz-orgaos_estrategicos" placeholder="Onde você vê maior potencial de contrato nos próximos 90 dias?"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green-dark)"></span>Licitações e Ferramentas</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Editais ativamente monitorados</label>
+            <textarea id="f-luiz-editais_monitorados" placeholder="Liste os editais em acompanhamento com número, órgão e valor estimado..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Proposições e contratos em andamento</label>
+            <textarea id="f-luiz-proposicoes_andamento" placeholder="Licitações que estão em fase de habilitação ou proposta técnica..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Ferramenta utilizada para monitorar editais</label>
+            <input type="text" id="f-luiz-ferramenta_licitacao" placeholder="Ex: ComprasNet, Licitanet, BLL, monitoramento manual...">
+          </div>
+          <div class="form-group">
+            <label>Principais gargalos operacionais</label>
+            <textarea id="f-luiz-gargalos_processo" placeholder="O que trava o processo hoje? Documentação, prazo, ferramental?"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title"><span style="background:var(--green)"></span>Visão de Meta</div>
+        <div class="form-group">
+          <label>O que seria uma meta realista com base no que você já tem?</label>
+          <textarea id="f-luiz-visao_meta" placeholder="Ex: Participar de 5 licitações no Q3, taxa de sucesso esperada de 30%..."></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" style="background:var(--green-dark);color:#fff" onclick="saveDiag('luiz','publico')">Salvar diagnóstico</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('luiz')">Baixar PDF</button>
+        <button class="btn btn-secondary btn-sm" onclick="sendEmail('luiz')">Enviar por e-mail</button>
+      </div>
+    </form>
+    <hr>
+    <div style="font-size:12px;font-weight:700;color:var(--g700);margin-bottom:8px">Histórico de preenchimentos</div>
+    <div id="hist-luiz"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     KPIs
+============================================================ -->
+<section id="tab-kpis" class="tab-sec">
+  <div class="sec-hdr">
+    <h2>KPIs — Acompanhamento por Account</h2>
+    <p>Insira seus dados diariamente. O dashboard atualiza em tempo real para toda a equipe.</p>
+  </div>
+
+  <div class="period-row">
+    <span class="period-label">Período:</span>
+    <button class="period-btn on" data-period="hoje" onclick="setPeriod('hoje',this)">Hoje</button>
+    <button class="period-btn" data-period="semana" onclick="setPeriod('semana',this)">Esta semana</button>
+    <button class="period-btn" data-period="mes" onclick="setPeriod('mes',this)">Este mês</button>
+    <button class="period-btn" data-period="quarter" onclick="setPeriod('quarter',this)">Quarter</button>
+  </div>
+
+  <div class="seg-tabs">
+    <button class="seg-tab on privado" onclick="switchSeg('privado',this)">🏢 Privado</button>
+    <button class="seg-tab publico" onclick="switchSeg('publico',this)">🏛️ Público</button>
+  </div>
+
+  <!-- PRIVADO KPIs -->
+  <div id="kpi-privado" class="kpi-seg-panel">
+    <div class="acc-grid">
+
+      <!-- RODRIGO KPI -->
+      <div class="acc-panel">
+        <div class="acc-panel-head" style="background:var(--blue)">
+          <div><div class="acc-panel-name">Rodrigo</div><div class="acc-panel-sub">Setor Privado · SP</div></div>
+          <span class="badge badge-b" style="background:rgba(255,255,255,.15);color:#fff">Privado</span>
+        </div>
+        <div class="acc-panel-body">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Inserir dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-label">Leads qualificados</span><input type="number" id="k-rodrigo-leads_qualificados" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Contatos feitos</span><input type="number" id="k-rodrigo-contatos_feitos" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Reuniões realizadas</span><input type="number" id="k-rodrigo-reunioes_realizadas" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Propostas enviadas</span><input type="number" id="k-rodrigo-propostas_enviadas" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Oportunidades abertas</span><input type="number" id="k-rodrigo-oportunidades_abertas" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Avançaram de fase</span><input type="number" id="k-rodrigo-oportunidades_avancaram" min="0" value="0" placeholder="0"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" style="width:100%" onclick="saveKPI('rodrigo','privado')">Salvar dados de hoje</button>
+          <hr style="margin:14px 0">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Dashboard — <span id="period-label-rodrigo">Hoje</span></div>
+          <div id="kpi-cards-rodrigo" class="kpi-grid" style="grid-template-columns:1fr 1fr 1fr"></div>
+          <div class="chart-wrap">
+            <div class="chart-title">Evolução — últimos 14 dias</div>
+            <canvas id="chart-rodrigo"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- HERIK KPI -->
+      <div class="acc-panel">
+        <div class="acc-panel-head" style="background:var(--cyan)">
+          <div><div class="acc-panel-name">Herik</div><div class="acc-panel-sub">Setor Privado · SP</div></div>
+          <span class="badge" style="background:rgba(255,255,255,.15);color:#fff">Privado</span>
+        </div>
+        <div class="acc-panel-body">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Inserir dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-label">Leads qualificados</span><input type="number" id="k-herik-leads_qualificados" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Contatos feitos</span><input type="number" id="k-herik-contatos_feitos" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Reuniões realizadas</span><input type="number" id="k-herik-reunioes_realizadas" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Propostas enviadas</span><input type="number" id="k-herik-propostas_enviadas" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Oportunidades abertas</span><input type="number" id="k-herik-oportunidades_abertas" min="0" value="0" placeholder="0"></div>
+            <div class="entry-field"><span class="entry-label">Avançaram de fase</span><input type="number" id="k-herik-oportunidades_avancaram" min="0" value="0" placeholder="0"></div>
+          </div>
+          <button class="btn btn-cyan btn-sm" style="width:100%" onclick="saveKPI('herik','privado')">Salvar dados de hoje</button>
+          <hr style="margin:14px 0">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Dashboard — <span id="period-label-herik">Hoje</span></div>
+          <div id="kpi-cards-herik" class="kpi-grid" style="grid-template-columns:1fr 1fr 1fr"></div>
+          <div class="chart-wrap">
+            <div class="chart-title">Evolução — últimos 14 dias</div>
+            <canvas id="chart-herik"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PÚBLICO KPIs -->
+  <div id="kpi-publico" class="kpi-seg-panel" style="display:none">
+    <div class="acc-grid">
+
+      <!-- ANDREIA KPI -->
+      <div class="acc-panel">
+        <div class="acc-panel-head" style="background:var(--green)">
+          <div><div class="acc-panel-name">Andreia Naves</div><div class="acc-panel-sub">Setor Público · Nacional</div></div>
+          <span class="badge" style="background:rgba(255,255,255,.15);color:#fff">Público</span>
+        </div>
+        <div class="acc-panel-body">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Inserir dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-label">Órgãos contatados</span><input type="number" id="k-andreia-orgaos_contatados" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Editais monitorados</span><input type="number" id="k-andreia-editais_monitorados_dia" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Reuniões/visitas</span><input type="number" id="k-andreia-reunioes_visitas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Propostas CIGAM</span><input type="number" id="k-andreia-propostas_cigam" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Novos contatos inst.</span><input type="number" id="k-andreia-novos_contatos_inst" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Participações licitação</span><input type="number" id="k-andreia-participacoes_licitacao" min="0" value="0"></div>
+          </div>
+          <button class="btn btn-green btn-sm" style="width:100%" onclick="saveKPI('andreia','publico')">Salvar dados de hoje</button>
+          <hr style="margin:14px 0">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Dashboard — <span id="period-label-andreia">Hoje</span></div>
+          <div id="kpi-cards-andreia" class="kpi-grid" style="grid-template-columns:1fr 1fr 1fr"></div>
+          <div class="chart-wrap">
+            <div class="chart-title">Evolução — últimos 14 dias</div>
+            <canvas id="chart-andreia"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- LUIZ KPI -->
+      <div class="acc-panel">
+        <div class="acc-panel-head" style="background:var(--green-dark)">
+          <div><div class="acc-panel-name">Luiz Gomes</div><div class="acc-panel-sub">Setor Público · Nacional</div></div>
+          <span class="badge" style="background:rgba(255,255,255,.15);color:#fff">Público</span>
+        </div>
+        <div class="acc-panel-body">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Inserir dados de hoje</div>
+          <div class="entry-grid">
+            <div class="entry-field"><span class="entry-label">Órgãos contatados</span><input type="number" id="k-luiz-orgaos_contatados" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Editais monitorados</span><input type="number" id="k-luiz-editais_monitorados_dia" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Reuniões/visitas</span><input type="number" id="k-luiz-reunioes_visitas" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Propostas CIGAM</span><input type="number" id="k-luiz-propostas_cigam" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Novos contatos inst.</span><input type="number" id="k-luiz-novos_contatos_inst" min="0" value="0"></div>
+            <div class="entry-field"><span class="entry-label">Participações licitação</span><input type="number" id="k-luiz-participacoes_licitacao" min="0" value="0"></div>
+          </div>
+          <button class="btn btn-sm" style="width:100%;background:var(--green-dark);color:#fff" onclick="saveKPI('luiz','publico')">Salvar dados de hoje</button>
+          <hr style="margin:14px 0">
+          <div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Dashboard — <span id="period-label-luiz">Hoje</span></div>
+          <div id="kpi-cards-luiz" class="kpi-grid" style="grid-template-columns:1fr 1fr 1fr"></div>
+          <div class="chart-wrap">
+            <div class="chart-title">Evolução — últimos 14 dias</div>
+            <canvas id="chart-luiz"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+// CONSTANTS & INIT
+// ══════════════════════════════════════════════
+const SB_URL = 'https://ybrdojfeqtguomzvjhfh.supabase.co';
+const SB_KEY = 'sb_publishable_-iJiOxilTUz6bO7YR3kiWw_-N4yZ1ym';
+const db = window.supabase.createClient(SB_URL, SB_KEY);
+
+const ACCOUNTS_PRIVADO = ['rodrigo','herik'];
+const ACCOUNTS_PUBLICO = ['andreia','luiz'];
+const ALL_ACCOUNTS = [...ACCOUNTS_PRIVADO, ...ACCOUNTS_PUBLICO];
+
+const KPI_PRIVADO = [
+  {key:'leads_qualificados',    label:'Leads Qualificados', icon:'🎯', meta:'leads_qualificados_mes'},
+  {key:'contatos_feitos',       label:'Contatos Feitos',    icon:'📞', meta:'contatos_feitos_mes'},
+  {key:'reunioes_realizadas',   label:'Reuniões',           icon:'🤝', meta:'reunioes_mes'},
+  {key:'propostas_enviadas',    label:'Propostas',          icon:'📄', meta:'propostas_mes'},
+  {key:'oportunidades_abertas', label:'Oport. Abertas',     icon:'🔓', meta:'oportunidades_abertas_meta'},
+  {key:'oportunidades_avancaram',label:'Avançaram Fase',   icon:'⬆️', meta:'oportunidades_avancaram_mes'},
+];
+
+const KPI_PUBLICO = [
+  {key:'orgaos_contatados',      label:'Órgãos Contatados',      icon:'🏛️', meta:'orgaos_contatados_mes'},
+  {key:'editais_monitorados_dia',label:'Editais Monitorados',    icon:'📋', meta:'editais_mes'},
+  {key:'reunioes_visitas',       label:'Reuniões/Visitas',       icon:'🤝', meta:'reunioes_visitas_mes'},
+  {key:'propostas_cigam',        label:'Propostas CIGAM',        icon:'📄', meta:'propostas_cigam_mes'},
+  {key:'novos_contatos_inst',    label:'Novos Contatos',         icon:'👥', meta:'novos_contatos_mes'},
+  {key:'participacoes_licitacao',label:'Part. Licitação',        icon:'⚖️', meta:'participacoes_licitacao_mes'},
+];
+
+const COLORS = {rodrigo:'#0E1DAA', herik:'#4DA4C7', andreia:'#0F9D58', luiz:'#0A7A42'};
+
+let state = {
+  period: 'hoje',
+  segment: 'privado',
+  metas: {},
+  charts: {},
+  currentMetaAccount: 'rodrigo',
+};
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function toast(msg, type='ok'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = type;
+  setTimeout(()=>{ el.className='hidden'; }, 3500);
+}
+
+// ══════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════
+function openModal(id){
+  if(id==='modal-email') loadEmailConfig();
+  if(id==='modal-metas') loadMetasModal();
+  document.getElementById(id).classList.remove('hidden');
+}
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+
+// ══════════════════════════════════════════════
+// MAIN TAB NAVIGATION
+// ══════════════════════════════════════════════
+function switchMain(tab, btn){
+  document.querySelectorAll('.tab-sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  btn.classList.add('on');
+  if(tab==='kpis') refreshAllKPIs();
+}
+
+// ══════════════════════════════════════════════
+// DIAGNÓSTICO NAV
+// ══════════════════════════════════════════════
+function switchDiag(account, btn){
+  document.querySelectorAll('.form-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.acc-tab[data-account]').forEach(b=>{
+    if(b.closest('#tab-diagnostico')) b.classList.remove('on');
+  });
+  document.getElementById('diag-'+account).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ══════════════════════════════════════════════
+// SEGMENT & PERIOD
+// ══════════════════════════════════════════════
+function switchSeg(seg, btn){
+  state.segment = seg;
+  document.querySelectorAll('.seg-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('kpi-privado').style.display = seg==='privado'?'block':'none';
+  document.getElementById('kpi-publico').style.display = seg==='publico'?'block':'none';
+  refreshAllKPIs();
+}
+
+function setPeriod(period, btn){
+  state.period = period;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const labels = {hoje:'Hoje', semana:'Esta semana', mes:'Este mês', quarter:'Quarter atual'};
+  refreshAllKPIs(labels[period]);
+}
+
+function getDateRange(period){
+  const now = new Date();
+  const pad = n=>String(n).padStart(2,'0');
+  const fmt = d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today = fmt(now);
+  if(period==='hoje') return {from:today, to:today};
+  if(period==='semana'){
+    const d=new Date(now); d.setDate(now.getDate()-now.getDay()+(now.getDay()===0?-6:1));
+    return {from:fmt(d),to:today};
+  }
+  if(period==='mes'){
+    return {from:`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`, to:today};
+  }
+  if(period==='quarter'){
+    const q=Math.floor(now.getMonth()/3);
+    return {from:`${now.getFullYear()}-${pad(q*3+1)}-01`, to:today};
+  }
+  return {from:today, to:today};
+}
+
+function getLast14Days(){
+  const days=[]; const now=new Date();
+  for(let i=13;i>=0;i--){
+    const d=new Date(now); d.setDate(now.getDate()-i);
+    const pad=n=>String(n).padStart(2,'0');
+    days.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`);
+  }
+  return days;
+}
+
+// ══════════════════════════════════════════════
+// SAVE DIAGNÓSTICO
+// ══════════════════════════════════════════════
+async function saveDiag(account, segmento){
+  const fields = account==='rodrigo'||account==='herik'
+    ? ['contas_ativas','contas_estrategicas','segmentos_tracao','persona_decisora','obstaculos','gaps_material','visao_meta']
+    : ['orgaos_ativos','orgaos_estrategicos','editais_monitorados','proposicoes_andamento','ferramenta_licitacao','gargalos_processo','visao_meta'];
+
+  const payload = {account, segmento};
+  fields.forEach(f=>{
+    const el = document.getElementById('f-'+account+'-'+f);
+    if(el) payload[f] = el.value;
+  });
+
+  const {error} = await db.from('diagnosticos').insert(payload);
+  if(error){
+    toast('Erro ao salvar: '+error.message, 'err');
+    console.error(error);
+    return;
+  }
+  toast('Diagnóstico salvo com sucesso!', 'ok');
+  loadHistory(account);
+}
+
+// ══════════════════════════════════════════════
+// LOAD HISTORY
+// ══════════════════════════════════════════════
+async function loadHistory(account){
+  const el = document.getElementById('hist-'+account);
+  if(!el) return;
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+
+  const {data, error} = await db.from('diagnosticos')
+    .select('*').eq('account',account).order('created_at',{ascending:false}).limit(5);
+
+  if(error){
+    el.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div>Erro ao carregar histórico</div>';
+    return;
+  }
+  if(!data||data.length===0){
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div>Nenhum diagnóstico salvo ainda</div>';
+    return;
+  }
+
+  const isPrivado = account==='rodrigo'||account==='herik';
+  const cols = isPrivado
+    ? [['Contas ativas','contas_ativas'],['Meta','visao_meta'],['Obstáculos','obstaculos']]
+    : [['Órgãos ativos','orgaos_ativos'],['Meta','visao_meta'],['Gargalos','gargalos_processo']];
+
+  let html = '<table class="hist-table"><thead><tr><th>Data</th>';
+  cols.forEach(c=>{ html+=`<th>${c[0]}</th>`; });
+  html += '<th>Ações</th></tr></thead><tbody>';
+
+  data.forEach(row=>{
+    const dt = new Date(row.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    html += `<tr><td style="white-space:nowrap;color:var(--g500)">${dt}</td>`;
+    cols.forEach(c=>{ html+=`<td title="${(row[c[1]]||'').replace(/"/g,'&quot;')}">${(row[c[1]]||'—').substring(0,60)}${(row[c[1]]||'').length>60?'...':''}</td>`; });
+    html += `<td><button class="btn btn-secondary btn-sm" onclick="restoreDiag('${account}','${row.id}')">Restaurar</button></td></tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function restoreDiag(account, id){
+  const {data, error} = await db.from('diagnosticos').select('*').eq('id',id).single();
+  if(error||!data){ toast('Erro ao restaurar', 'err'); return; }
+  Object.keys(data).forEach(k=>{
+    const el = document.getElementById('f-'+account+'-'+k);
+    if(el) el.value = data[k]||'';
+  });
+  toast('Diagnóstico restaurado no formulário', 'info');
+}
+
+// ══════════════════════════════════════════════
+// SAVE KPI
+// ══════════════════════════════════════════════
+async function saveKPI(account, segmento){
+  const fields = segmento==='privado'
+    ? ['leads_qualificados','contatos_feitos','reunioes_realizadas','propostas_enviadas','oportunidades_abertas','oportunidades_avancaram']
+    : ['orgaos_contatados','editais_monitorados_dia','reunioes_visitas','propostas_cigam','novos_contatos_inst','participacoes_licitacao'];
+
+  const today = new Date().toISOString().split('T')[0];
+  const payload = {account, segmento, data:today};
+  fields.forEach(f=>{
+    const el = document.getElementById('k-'+account+'-'+f);
+    payload[f] = el ? parseInt(el.value)||0 : 0;
+  });
+
+  const {error} = await db.from('kpi_diario')
+    .upsert(payload, {onConflict:'account,data'});
+
+  if(error){
+    toast('Erro ao salvar KPI: '+error.message, 'err');
+    console.error(error);
+    return;
+  }
+  toast('KPIs de hoje salvos!', 'ok');
+  refreshKPI(account, segmento);
+}
+
+// ══════════════════════════════════════════════
+// LOAD & RENDER KPIs
+// ══════════════════════════════════════════════
+async function refreshKPI(account, segmento){
+  const {from, to} = getDateRange(state.period);
+  const labels = {hoje:'Hoje', semana:'Esta semana', mes:'Este mês', quarter:'Quarter atual'};
+  const pl = document.getElementById('period-label-'+account);
+  if(pl) pl.textContent = labels[state.period]||'Hoje';
+
+  const {data, error} = await db.from('kpi_diario')
+    .select('*').eq('account',account).gte('data',from).lte('data',to);
+
+  const metas = state.metas[account]||{};
+  const fields = segmento==='privado' ? KPI_PRIVADO : KPI_PUBLICO;
+
+  // Aggregate
+  const totals = {};
+  (data||[]).forEach(row=>{
+    fields.forEach(f=>{ totals[f.key]=(totals[f.key]||0)+(row[f.key]||0); });
+  });
+
+  // Render cards
+  const container = document.getElementById('kpi-cards-'+account);
+  if(container){
+    container.innerHTML = '';
+    fields.forEach(f=>{
+      const val = totals[f.key]||0;
+      const metaKey = f.meta;
+      const metaVal = metas[metaKey]||0;
+      const pct = metaVal>0 ? Math.min(100,Math.round(val/metaVal*100)) : 0;
+      const pctColor = pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+      container.innerHTML += `
+        <div class="kpi-card">
+          <div class="kpi-icon">${f.icon}</div>
+          <div class="kpi-num" style="color:${COLORS[account]}">${val}</div>
+          <div class="kpi-label">${f.label}</div>
+          ${metaVal>0?`
+          <div class="kpi-meta">
+            <div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${pct}%;background:${pctColor}"></div></div>
+            <span class="kpi-pct" style="color:${pctColor}">${pct}%</span>
+          </div>
+          <div style="font-size:10px;color:var(--g500);margin-top:2px">Meta: ${metaVal}</div>`:''}
+        </div>`;
+    });
+  }
+
+  // Chart (always last 14 days)
+  await renderChart(account, segmento);
+}
+
+async function refreshAllKPIs(periodLabel){
+  const seg = state.segment;
+  const accounts = seg==='privado' ? ACCOUNTS_PRIVADO : ACCOUNTS_PUBLICO;
+  for(const acc of accounts){
+    const seg2 = ACCOUNTS_PRIVADO.includes(acc)?'privado':'publico';
+    await refreshKPI(acc, seg2);
+  }
+}
+
+// ══════════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════════
+async function renderChart(account, segmento){
+  const days = getLast14Days();
+  const {data} = await db.from('kpi_diario')
+    .select('*').eq('account',account).gte('data',days[0]).lte('data',days[days.length-1]);
+
+  const byDay = {};
+  (data||[]).forEach(row=>{ byDay[row.data]=row; });
+
+  const fields = segmento==='privado'
+    ? [{key:'leads_qualificados',label:'Leads',color:'rgba(14,29,170,0.8)'},
+       {key:'propostas_enviadas',label:'Propostas',color:'rgba(77,164,199,0.8)'},
+       {key:'reunioes_realizadas',label:'Reuniões',color:'rgba(15,157,88,0.8)'}]
+    : [{key:'orgaos_contatados',label:'Órgãos',color:'rgba(15,157,88,0.8)'},
+       {key:'propostas_cigam',label:'Propostas CIGAM',color:'rgba(10,122,66,0.8)'},
+       {key:'reunioes_visitas',label:'Reuniões',color:'rgba(77,164,199,0.8)'}];
+
+  const labels = days.map(d=>d.substring(5));
+  const datasets = fields.map(f=>({
+    label: f.label,
+    data: days.map(d=>(byDay[d]?byDay[d][f.key]:0)||0),
+    borderColor: f.color,
+    backgroundColor: f.color.replace('0.8','0.1'),
+    borderWidth: 2,
+    tension: 0.3,
+    pointRadius: 3,
+    fill: true,
+  }));
+
+  const canvasId = 'chart-'+account;
+  if(state.charts[account]){ state.charts[account].destroy(); }
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  state.charts[account] = new Chart(canvas, {
+    type:'line',
+    data:{labels, datasets},
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      plugins:{
+        legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},
+        tooltip:{mode:'index',intersect:false}
+      },
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#71717A'}},
+        y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#71717A'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+// METAS
+// ══════════════════════════════════════════════
+async function loadMetas(){
+  const {data} = await db.from('metas').select('*');
+  if(data) data.forEach(m=>{ state.metas[m.account]=m; });
+}
+
+async function loadMetasModal(){
+  await loadMetas();
+  ALL_ACCOUNTS.forEach(acc=>{
+    const m = state.metas[acc]||{};
+    const form = document.getElementById('metas-form-'+acc);
+    if(!form) return;
+    form.querySelectorAll('input[type=number]').forEach(input=>{
+      const key = input.id.replace('m-'+acc+'-','');
+      if(m[key]!==undefined) input.value = m[key];
+    });
+  });
+}
+
+async function saveMetas(){
+  const acc = state.currentMetaAccount;
+  const form = document.getElementById('metas-form-'+acc);
+  if(!form) return;
+
+  const payload = {account:acc, segmento: ACCOUNTS_PRIVADO.includes(acc)?'privado':'publico'};
+  form.querySelectorAll('input[type=number]').forEach(input=>{
+    const key = input.id.replace('m-'+acc+'-','');
+    payload[key] = parseInt(input.value)||0;
+  });
+
+  const {error} = await db.from('metas').upsert(payload,{onConflict:'account'});
+  if(error){ toast('Erro ao salvar metas: '+error.message,'err'); return; }
+  toast('Metas salvas para '+acc+'!','ok');
+  await loadMetas();
+}
+
+function switchMetaAccount(acc, btn){
+  state.currentMetaAccount = acc;
+  document.querySelectorAll('.metas-form').forEach(f=>f.style.display='none');
+  document.getElementById('metas-form-'+acc).style.display='block';
+  btn.closest('.acc-tabs').querySelectorAll('.acc-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ══════════════════════════════════════════════
+// EMAIL CONFIG (EmailJS)
+// ══════════════════════════════════════════════
+function loadEmailConfig(){
+  document.getElementById('ejs-service').value = localStorage.getItem('ejs_service')||'';
+  document.getElementById('ejs-template').value = localStorage.getItem('ejs_template')||'';
+  document.getElementById('ejs-pubkey').value = localStorage.getItem('ejs_pubkey')||'';
+}
+function saveEmailConfig(){
+  localStorage.setItem('ejs_service', document.getElementById('ejs-service').value.trim());
+  localStorage.setItem('ejs_template', document.getElementById('ejs-template').value.trim());
+  localStorage.setItem('ejs_pubkey', document.getElementById('ejs-pubkey').value.trim());
+  toast('Configuração de e-mail salva!','ok');
+  closeModal('modal-email');
+}
+async function sendEmail(account){
+  const service = localStorage.getItem('ejs_service');
+  const template = localStorage.getItem('ejs_template');
+  const pubkey = localStorage.getItem('ejs_pubkey');
+  if(!service||!template||!pubkey){
+    toast('Configure o EmailJS primeiro (botão ✉️ no topo)','info');
+    openModal('modal-email');
+    return;
+  }
+  emailjs.init(pubkey);
+  const fields=['contas_ativas','contas_estrategicas','segmentos_tracao','persona_decisora','obstaculos','gaps_material','visao_meta','orgaos_ativos','orgaos_estrategicos','editais_monitorados','proposicoes_andamento','ferramenta_licitacao','gargalos_processo'];
+  const body = fields.map(f=>{
+    const el=document.getElementById('f-'+account+'-'+f);
+    return el&&el.value?`${f.replace(/_/g,' ').toUpperCase()}:\n${el.value}`:'';
+  }).filter(Boolean).join('\n\n');
+  const names = {rodrigo:'Rodrigo',herik:'Herik',andreia:'Andreia Naves',luiz:'Luiz Gomes'};
+  try{
+    await emailjs.send(service,template,{
+      account: names[account]||account,
+      conteudo: body,
+      to_email: 'andre.elvas@xpon.com.br,aguinaldo.barbosa@xpon.com.br',
+      data: new Date().toLocaleDateString('pt-BR')
+    });
+    toast('E-mail enviado com sucesso!','ok');
+  }catch(e){
+    toast('Erro ao enviar: '+e.text,'err');
+  }
+}
+
+// ══════════════════════════════════════════════
+// PDF DOWNLOAD
+// ══════════════════════════════════════════════
+function downloadPDF(account){
+  const names = {rodrigo:'Rodrigo',herik:'Herik',andreia:'Andreia Naves',luiz:'Luiz Gomes'};
+  const segs = {rodrigo:'Setor Privado',herik:'Setor Privado',andreia:'Setor Público',luiz:'Setor Público'};
+  const isPrivado = account==='rodrigo'||account==='herik';
+  const fieldMap = isPrivado
+    ? [['Contas ativas','contas_ativas'],['Contas estratégicas','contas_estrategicas'],['Segmentos com tração','segmentos_tracao'],['Persona decisora','persona_decisora'],['Obstáculos operacionais','obstaculos'],['Gaps de material','gaps_material'],['Visão de meta','visao_meta']]
+    : [['Órgãos com relacionamento ativo','orgaos_ativos'],['Órgãos estratégicos 90 dias','orgaos_estrategicos'],['Editais monitorados','editais_monitorados'],['Proposições em andamento','proposicoes_andamento'],['Ferramenta de licitação','ferramenta_licitacao'],['Gargalos no processo','gargalos_processo'],['Visão de meta','visao_meta']];
+
+  let html=`<div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:32px">
+    <div style="border-bottom:3px solid #0E1DAA;padding-bottom:16px;margin-bottom:24px">
+      <h1 style="color:#0E1DAA;font-size:22px;margin:0">XP On — Diagnóstico Comercial</h1>
+      <p style="color:#71717A;margin:6px 0 0">Account: <strong>${names[account]}</strong> · ${segs[account]} · ${new Date().toLocaleDateString('pt-BR')}</p>
+    </div>`;
+
+  fieldMap.forEach(([label,key])=>{
+    const el=document.getElementById('f-'+account+'-'+key);
+    const val=(el?el.value:'')||'—';
+    html+=`<div style="margin-bottom:18px"><h3 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#71717A;margin:0 0 6px">${label}</h3><div style="background:#F5F5F5;padding:12px;border-radius:6px;font-size:13px;white-space:pre-wrap">${val}</div></div>`;
+  });
+  html+=`<div style="margin-top:32px;padding-top:16px;border-top:1px solid #DEDEDE;font-size:10px;color:#9CA3AF">Gerado em ${new Date().toLocaleString('pt-BR')} · XP On Comercial em Ação</div></div>`;
+
+  const area = document.getElementById('print-area');
+  area.innerHTML = html;
+  area.style.display='block';
+  window.print();
+  setTimeout(()=>{ area.style.display='none'; },1000);
+}
+
+// ══════════════════════════════════════════════
+// LOAD TODAY'S KPI TO FORM
+// ══════════════════════════════════════════════
+async function loadTodayKPI(account, segmento){
+  const today = new Date().toISOString().split('T')[0];
+  const {data} = await db.from('kpi_diario').select('*').eq('account',account).eq('data',today).single();
+  if(!data) return;
+  const fields = segmento==='privado'
+    ? ['leads_qualificados','contatos_feitos','reunioes_realizadas','propostas_enviadas','oportunidades_abertas','oportunidades_avancaram']
+    : ['orgaos_contatados','editais_monitorados_dia','reunioes_visitas','propostas_cigam','novos_contatos_inst','participacoes_licitacao'];
+  fields.forEach(f=>{
+    const el=document.getElementById('k-'+account+'-'+f);
+    if(el&&data[f]!==undefined) el.value=data[f];
+  });
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+async function init(){
+  await loadMetas();
+
+  // Load diagnóstico histories
+  for(const acc of ALL_ACCOUNTS) loadHistory(acc);
+
+  // Load today's KPI values into forms
+  for(const acc of ACCOUNTS_PRIVADO) loadTodayKPI(acc,'privado');
+  for(const acc of ACCOUNTS_PUBLICO) loadTodayKPI(acc,'publico');
+
+  // Render initial KPI dashboard (privado is shown by default)
+  for(const acc of ACCOUNTS_PRIVADO) refreshKPI(acc,'privado');
+}
+
+init();
+</script>
+</body>
+</html>
